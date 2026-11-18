@@ -560,5 +560,272 @@
             window.print();
         }
     </script>
+    <!-- PiAkit TR / EN Arayüz Dil Anahtarı -->
+<style>
+  #piakit-lang-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    max-width: 1200px;
+    margin: 8px auto 4px;
+    padding: 0 12px;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  .piakit-lang-pill {
+    display: inline-flex;
+    background: #f3edf9;
+    border: 1px solid #d8c6ee;
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .piakit-lang-btn {
+    border: none;
+    background: transparent;
+    color: #5b2c83;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .piakit-lang-btn.active {
+    background: #6c30a0;
+    color: #ffffff;
+  }
+  #piakit-en-note {
+    display: none;
+    max-width: 1200px;
+    margin: 0 auto 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #4a2574;
+    background: #f8f4fc;
+    border-left: 3px solid #6c30a0;
+    border-radius: 4px;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  @media print {
+    #piakit-lang-bar, #piakit-en-note { display: none !important; }
+  }
+</style>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'piakit_ui_lang';
+  const EXACT = {
+    'Masaüstü Test Modu': 'Desktop Test Mode',
+    'Pi Testnet Hazır': 'Pi Testnet Ready',
+    'Pi Mainnet Hazır': 'Pi Mainnet Ready',
+    'Pi SDK Bağlanıyor...': 'Connecting Pi SDK...',
+    'Sözleşme verileriniz cihazınızdan çıkmaz. Yalnızca ödeme onayı Pi ağı üzerinden doğrulanır.':
+      'Your contract data never leaves your device. Only payment approval is verified via the Pi Network.',
+    '1. Kiraya Veren Bilgileri': '1. Landlord Information',
+    '2. Kiracı Bilgileri': '2. Tenant Information',
+    '3. Kiralanan Taşınmaz Bilgileri': '3. Property Information',
+    '3. Taşınmaz Bilgileri': '3. Property Information',
+    '3. Kiralanan Bilgileri': '3. Property Information',
+    '3. Gayrimenkul Bilgileri': '3. Property Information',
+    '3. Mülk Bilgileri': '3. Property Information',
+    '4. Kira ve Ödeme Bilgileri': '4. Rent & Payment Details',
+    '4. Sözleşme ve Ödeme Bilgileri': '4. Contract & Payment Details',
+    '4. Kira Şartları': '4. Lease Terms',
+    '4. Sözleşme Bilgileri': '4. Lease Details',
+    '4. Mali Bilgiler': '4. Financial Details',
+    '5. Tahliye Taahhütnamesi': '5. Eviction Commitment',
+    '5. Tahliye Taahhütnamesi Bilgileri': '5. Eviction Commitment Details',
+    '5. Kefil Bilgileri': '5. Guarantor Information',
+    '5. Demirbaş ve Özel Şartlar': '5. Fixtures & Special Terms',
+    '6. Tahliye Taahhütnamesi': '6. Eviction Commitment',
+    'Adı Soyadı / Unvanı': 'Full Name / Company Name',
+    'Adı Soyadı': 'Full Name',
+    'Ad Soyad': 'Full Name',
+    'T.C. Kimlik No': 'Turkish ID No (TCKN)',
+    'T.C. Kimlik Numarası': 'Turkish ID No (TCKN)',
+    '11 haneli': '11 digits',
+    'İkametgah Adresi': 'Residential Address',
+    'Mahalle, ilçe, il': 'Neighborhood, district, city',
+    'Banka Adı ve IBAN': 'Bank Name & IBAN',
+    'Telefon': 'Phone Number',
+    'Telefon No': 'Phone Number',
+    'Telefon Numarası': 'Phone Number',
+    'Kiralananın Adresi': 'Property Address',
+    'Taşınmaz Adresi': 'Property Address',
+    'Açık Adres': 'Full Address',
+    'İl / İlçe': 'City / District',
+    'Taşınmaz Türü': 'Property Type',
+    'Kiralananın Cinsi': 'Property Type',
+    'Kullanım Amacı': 'Intended Use',
+    'Kullanım Şekli': 'Intended Use',
+    'Konut': 'Residential',
+    'İşyeri': 'Commercial',
+    'Aylık Kira Bedeli': 'Monthly Rent (TRY)',
+    'Aylık Kira Bedeli (TL)': 'Monthly Rent (TRY)',
+    'Aylık Kira (TL)': 'Monthly Rent (TRY)',
+    'Yıllık Kira Bedeli': 'Annual Rent (TRY)',
+    'Depozito': 'Security Deposit (TRY)',
+    'Depozito Bedeli': 'Security Deposit (TRY)',
+    'Depozito Tutarı': 'Security Deposit (TRY)',
+    'Depozito (TL)': 'Security Deposit (TRY)',
+    'Kira Başlangıç Tarihi': 'Lease Start Date',
+    'Başlangıç Tarihi': 'Start Date',
+    'Kira Süresi': 'Lease Duration',
+    'Sözleşme Süresi': 'Contract Duration',
+    'Ödeme Günü': 'Payment Day',
+    'Kira Ödeme Günü': 'Monthly Payment Day',
+    'Ödeme Şekli': 'Payment Method',
+    'Tahliye Tarihi': 'Eviction Date',
+    'Düzenleme Tarihi': 'Issue Date',
+    'Taahhüt Tarihi': 'Commitment Date',
+    'Taahhütname Düzenleme Tarihi': 'Commitment Issue Date',
+    'Demirbaşlar': 'Fixtures & Inventory',
+    'Teslim Edilen Demirbaşlar': 'Included Fixtures',
+    'Özel Şartlar': 'Special Clauses',
+    'Ek Özel Şartlar': 'Additional Clauses',
+    'Kefil Adı Soyadı': 'Guarantor Full Name',
+    'Kefil T.C. Kimlik No': 'Guarantor Turkish ID No',
+    'Kefil Adresi': 'Guarantor Address',
+    'Evrak Önizlemesi': 'Document Preview',
+    'Sistemi Çalıştır ve Üret': 'Verify & Generate Pack',
+    'Pi Cüzdanı İle Öde & Kilidi Aç': 'Pay with Pi Wallet & Unlock',
+    'Önizleme Kilitli': 'Preview Locked',
+    'Yazdır': 'Print',
+    'Yazdır / PDF Kaydet': 'Print / Save as PDF',
+    'Kira Sözleşmesini Yazdır': 'Print Rental Agreement',
+    'Tahliye Taahhütnamesini Yazdır': 'Print Eviction Commitment',
+    'Sözleşmeyi Yazdır': 'Print Rental Agreement',
+    'Taahhütnameyi Yazdır': 'Print Eviction Commitment',
+    'Örnek Veri Doldur': 'Fill Sample Data',
+    'Test Verisi Doldur': 'Fill Sample Data',
+    'Temizle': 'Clear Form',
+    'Formu Temizle': 'Clear Form'
+  };
+
+  const PARTIAL = [
+    [/Formu doldurup .* butonuna bastığınızda/i, 'Fill in the form and click "Verify & Generate Pack" to preview your verified legal documents.'],
+    [/Banka\s*-\s*TR00/i, 'Bank - TR00 0000 0000 0000 0000 0000 00'],
+    [/PI_API_KEY/i, 'Server PI_API_KEY is not configured yet.']
+  ];
+
+  const origText = new WeakMap();
+  const origAttr = new WeakMap();
+  let currentLang = 'tr';
+  let observer = null;
+
+  function loadLang() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved === 'en' ? 'en' : 'tr';
+    } catch { return 'tr'; }
+  }
+
+  function saveLang(lang) {
+    try { localStorage.setItem(STORAGE_KEY, lang); } catch {}
+  }
+
+  function translateString(str) {
+    const trimmed = str.trim();
+    if (!trimmed) return null;
+    if (EXACT[trimmed]) return str.replace(trimmed, EXACT[trimmed]);
+    if (trimmed.length < 220) {
+      for (const [regex, rep] of PARTIAL) {
+        if (regex.test(trimmed)) return rep;
+      }
+    }
+    return null;
+  }
+
+  function applyLang(lang) {
+    currentLang = lang;
+    saveLang(lang);
+    if (observer) observer.disconnect();
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const p = node.parentElement;
+        if (!p) return NodeFilter.FILTER_REJECT;
+        if (p.closest('#piakit-lang-bar, #piakit-en-note, script, style, textarea')) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+
+    for (const node of nodes) {
+      if (lang === 'en') {
+        const base = origText.has(node) ? origText.get(node) : node.nodeValue;
+        const translated = translateString(base);
+        if (translated) {
+          if (!origText.has(node)) origText.set(node, base);
+          node.nodeValue = translated;
+        }
+      } else if (origText.has(node)) {
+        node.nodeValue = origText.get(node);
+      }
+    }
+
+    document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach((el) => {
+      if (lang === 'en') {
+        const base = origAttr.has(el) ? origAttr.get(el) : el.placeholder;
+        const translated = translateString(base);
+        if (translated) {
+          if (!origAttr.has(el)) origAttr.set(el, base);
+          el.placeholder = translated;
+        }
+      } else if (origAttr.has(el)) {
+        el.placeholder = origAttr.get(el);
+      }
+    });
+
+    document.querySelectorAll('.piakit-lang-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    const note = document.getElementById('piakit-en-note');
+    if (note) note.style.display = lang === 'en' ? 'block' : 'none';
+    document.documentElement.lang = lang;
+
+    if (observer) observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+
+  function init() {
+    const bar = document.createElement('div');
+    bar.id = 'piakit-lang-bar';
+    bar.innerHTML = `
+      <div class="piakit-lang-pill" role="group" aria-label="Language">
+        <button type="button" class="piakit-lang-btn" data-lang="tr">TR</button>
+        <button type="button" class="piakit-lang-btn" data-lang="en">EN</button>
+      </div>
+    `;
+    const note = document.createElement('div');
+    note.id = 'piakit-en-note';
+    note.textContent = 'English UI active. Generated A4 contracts remain in official Turkish legal format (Turkish Code of Obligations compliant).';
+
+    document.body.prepend(note);
+    document.body.prepend(bar);
+
+    bar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.piakit-lang-btn');
+      if (btn) applyLang(btn.dataset.lang);
+    });
+
+    observer = new MutationObserver(() => {
+      if (currentLang === 'en') applyLang('en');
+    });
+
+    applyLang(loadLang());
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
 </body>
 </html>
