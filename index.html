@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PiAkit - Otonom Kiralama Paketi</title>
+    <!-- Resmi Pi Network SDK -->
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+    <style>
+        :root { --primary: #8a2be2; --secondary: #f0e6ff; --dark: #333; --light: #fff; --border: #ddd; --success: #28a745; --danger: #dc3545; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: var(--dark); display: flex; height: 100vh; }
+
+        /* SOL MENÜ (GİRİŞ EKRANI) */
+        .sidebar { width: 450px; background-color: var(--light); padding: 25px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); overflow-y: auto; border-right: 1px solid var(--border); }
+        .logo { font-size: 28px; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid var(--primary); padding-bottom: 12px; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .pi-badge { font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 999px; background: var(--secondary); color: var(--primary); }
+        .form-section { background-color: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
+        .form-section h3 { font-size: 16px; margin: 0 0 15px 0; border-bottom: 1px solid #ccc; padding-bottom: 5px; color: #555; }
+        .form-group { margin-bottom: 15px; }
+        .row { display: flex; gap: 10px; }
+        .row > div { flex: 1; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 13px; color: #444; }
+        .opt { font-weight: normal; color: #999; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; font-family: inherit; }
+        input:focus, textarea:focus { border-color: var(--primary); outline: none; }
+        input.invalid, textarea.invalid { border-color: var(--danger); background: #fff5f5; }
+        textarea { resize: vertical; height: 60px; }
+        .btn { display: block; width: 100%; padding: 12px; background-color: var(--primary); color: var(--light); border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn:hover { opacity: .92; }
+        .btn-success { background-color: var(--success); }
+
+        /* SAĞ PANEL (ÖNİZLEME) */
+        .main-content { flex: 1; padding: 30px; display: flex; flex-direction: column; align-items: center; background-color: #e9ecef; overflow-y: auto; }
+        .preview-container { width: 100%; max-width: 800px; background-color: var(--light); border: 1px solid var(--border); border-radius: 8px; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 500px; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .preview-document { display: none; width: 100%; }
+        .mock-doc-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; font-weight: bold; font-size: 18px; }
+        .mock-doc-row { display: flex; border-bottom: 1px solid #eee; padding: 8px 0; }
+        .mock-doc-label { font-weight: bold; width: 40%; }
+        .mock-doc-value { flex: 1; word-break: break-word; }
+
+        /* ANİMASYON VE KİLİT EKRANLARI */
+        .blur-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px); display: none; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; z-index: 10; }
+        .payment-box { background-color: var(--light); padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border: 2px solid var(--primary); max-width: 90%; }
+        .pi-price { font-size: 24px; color: var(--primary); font-weight: bold; margin: 15px 0; }
+        .tl-price { font-size: 14px; color: #666; margin-bottom: 15px; }
+        .pay-status { font-size: 12px; color: #555; margin-top: 10px; min-height: 18px; }
+        .pay-error { font-size: 12px; color: var(--danger); margin-top: 8px; display: none; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; display: none; margin: 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .document-actions { display: none; margin-top: 20px; gap: 15px; width: 100%; max-width: 800px; }
+        .document-actions button { flex: 1; }
+        .legal-note { font-size: 11px; color: #888; margin-top: 15px; text-align: center; max-width: 800px; }
+
+        /* MOBİL / DAR EKRAN (Pi Browser dahil) */
+        @media screen and (max-width: 900px) {
+            body { flex-direction: column; height: auto; }
+            .sidebar { width: 100%; border-right: none; overflow-y: visible; padding: 16px; }
+            .main-content { padding: 12px; overflow-y: visible; }
+            .preview-container { padding: 20px; min-height: 320px; }
+            .document-actions { flex-direction: column; gap: 0; }
+        }
+
+        /* GİZLİ RESMİ ÇIKTI (PRINT) TASARIMI */
+        @media screen {
+            #printArea { display: none; }
+        }
+        @media print {
+            html, body { display: block !important; height: auto !important; background: #fff !important; margin: 0; padding: 0; }
+            .sidebar, .main-content { display: none !important; }
+            #printArea { display: block; font-family: 'Times New Roman', Times, serif; color: #000; font-size: 10pt; line-height: 1.4; }
+
+            @page { size: A4; margin: 1.5cm 2cm; }
+
+            .print-page { page-break-after: always; }
+            .print-page:last-child { page-break-after: auto; }
+            .print-title { text-align: center; font-weight: bold; font-size: 14pt; margin-bottom: 15px; text-decoration: underline; }
+
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            .print-table td { border: 1px solid #000; padding: 5px 6px; vertical-align: top; }
+            .td-label { font-weight: bold; width: 38%; }
+
+            .hususi-sartlar-title { font-weight: bold; text-align: center; margin-bottom: 8px; font-size: 11pt; text-decoration: underline; }
+            .hususi-sartlar-list { margin: 0; padding-left: 20px; text-align: justify; font-size: 9.5pt; }
+            .hususi-sartlar-list li { margin-bottom: 4px; }
+
+            .signature-area { display: flex; justify-content: space-between; margin-top: 30px; padding: 0 10px; page-break-inside: avoid; }
+            .signature-box { text-align: center; width: 30%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- GİRİŞ FORMU -->
+    <div class="sidebar">
+        <div class="logo">
+            <span>📄 PiAkit</span>
+            <span class="pi-badge" id="piStatusBadge">Bağlanıyor...</span>
+        </div>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Sözleşme verileriniz cihazınızdan çıkmaz. Yalnızca ödeme onayı Pi ağı üzerinden doğrulanır.</p>
+
+        <form id="contractForm" onsubmit="return false;">
+            <!-- 1. Mal Sahibi -->
+            <div class="form-section">
+                <h3>1. Kiraya Veren Bilgileri</h3>
+                <div class="form-group"><label for="ownerName">Adı Soyadı / Unvanı</label><input type="text" id="ownerName" placeholder="Ad Soyad" required></div>
+                <div class="form-group"><label for="ownerTC">T.C. Kimlik No</label><input type="text" id="ownerTC" inputmode="numeric" maxlength="11" placeholder="11 haneli" required></div>
+                <div class="form-group"><label for="ownerAddress">İkametgah Adresi</label><input type="text" id="ownerAddress" placeholder="Mahalle, ilçe, il" required></div>
+                <div class="form-group"><label for="ownerIBAN">Banka Adı ve IBAN</label><input type="text" id="ownerIBAN" placeholder="Banka - TR00 0000 0000 0000 0000 0000 00" required></div>
+            </div>
+
+            <!-- 2. Kiracı -->
+            <div class="form-section">
+                <h3>2. Kiracı Bilgileri</h3>
+                <div class="form-group"><label for="tenantName">Adı Soyadı / Unvanı</label><input type="text" id="tenantName" placeholder="Ad Soyad" required></div>
+                <div class="form-group"><label for="tenantTC">T.C. Kimlik No</label><input type="text" id="tenantTC" inputmode="numeric" maxlength="11" placeholder="11 haneli" required></div>
+                <div class="form-group"><label for="tenantAddress">İkametgah Adresi</label><input type="text" id="tenantAddress" placeholder="Mahalle, ilçe, il" required></div>
+                <div class="form-group"><label for="tenantWork">İşyeri Adresi <span class="opt">(opsiyonel)</span></label><input type="text" id="tenantWork"></div>
+            </div>
+
+            <!-- 3. Kefil -->
+            <div class="form-section">
+                <h3>3. Kefil Bilgileri <span class="opt">(opsiyonel)</span></h3>
+                <div class="form-group"><label for="guarantorName">Kefil Adı Soyadı</label><input type="text" id="guarantorName"></div>
+                <div class="form-group"><label for="guarantorTC">Kefil T.C. Kimlik No</label><input type="text" id="guarantorTC" inputmode="numeric" maxlength="11"></div>
+            </div>
+
+            <!-- 4. Mülk ve Şartlar -->
+            <div class="form-section">
+                <h3>4. Mülk (Mecur) ve Şartlar</h3>
+                <div class="form-group"><label for="propertyAddress">Mülk Adresi (Dairesi / Mah. / Sok. / No)</label><textarea id="propertyAddress" placeholder="Mahalle, sokak, bina no, daire no, ilçe/il" required></textarea></div>
+                <div class="form-group"><label for="propertyType">Kiralanan Şeyin Cinsi</label><input type="text" id="propertyType" value="Mesken" required></div>
+                <div class="form-group"><label for="propertyCondition">Kiralanan Şeyin Şimdiki Durumu</label><input type="text" id="propertyCondition" value="Kullanıma uygun, sağlam"></div>
+                <div class="form-group"><label for="propertyUsage">Ne İçin Kullanılacağı</label><input type="text" id="propertyUsage" value="Konut olarak"></div>
+                <div class="form-group row">
+                    <div><label for="rentMonthly">Aylık Kira Bedeli</label><input type="text" id="rentMonthly" inputmode="decimal" placeholder="16.000 TL" required></div>
+                    <div><label for="rentYearly">Yıllık Kira Bedeli</label><input type="text" id="rentYearly" inputmode="decimal" placeholder="otomatik (x12)" required></div>
+                </div>
+                <div class="form-group row">
+                    <div><label for="advanceAmount">Peşinat Tutarı</label><input type="text" id="advanceAmount" inputmode="decimal" placeholder="0 TL" required></div>
+                    <div><label for="depositAmount">Depozito Tutarı</label><input type="text" id="depositAmount" inputmode="decimal" placeholder="0 TL" required></div>
+                </div>
+                <div class="form-group"><label for="contractDuration">Sözleşme Süresi</label><input type="text" id="contractDuration" value="1 Yıl" required></div>
+                <div class="form-group"><label for="rentIncrease">Kira Artış Oranı / Esası</label><input type="text" id="rentIncrease" value="TÜFE (12 aylık ortalama)" required></div>
+                <div class="form-group"><label for="rentPayDay">Kira Ödeme Günü (ayın ilk kaçıncı günü)</label><input type="text" id="rentPayDay" inputmode="numeric" value="5" required></div>
+                <div class="form-group"><label for="fixtures">Demirbaş Eşya Beyanı</label><textarea id="fixtures" placeholder="Örn: 1 adet kombi, su sayacı endeksi: ..."></textarea></div>
+            </div>
+
+            <!-- 5. Tarihler ve Mahkeme -->
+            <div class="form-section">
+                <h3>5. Kritik Tarihler ve Diğer</h3>
+                <div class="form-group"><label for="startDate">Sözleşme Başlangıç Tarihi</label><input type="date" id="startDate" required></div>
+                <div class="form-group"><label for="commitDate">Taahhütname İmzalanma Tarihi</label><input type="date" id="commitDate" required></div>
+                <div class="form-group"><label for="evictDate">Evden Tahliye Edilecek Tarih</label><input type="date" id="evictDate" required></div>
+                <div class="form-group row">
+                    <div><label for="copies">Nüsha Sayısı</label><input type="text" id="copies" inputmode="numeric" value="2" required></div>
+                    <div><label for="court">Yetkili Mahkeme (Şehir)</label><input type="text" id="court" value="Edirne" required></div>
+                </div>
+            </div>
+
+            <button type="button" id="generateBtn" class="btn">Sistemi Çalıştır ve Üret</button>
+        </form>
+    </div>
+
+    <!-- ÖNİZLEME VE ÖDEME EKRANI -->
+    <div class="main-content">
+        <div class="preview-container">
+            <div id="initialText" style="text-align:center; color: #888;">
+                <h2>Evrak Önizlemesi</h2>
+                <p>Formu doldurup "Üret" butonuna bastığınızda<br>sözleşme verileri derlenecektir.</p>
+            </div>
+
+            <div class="loader" id="loader"></div>
+
+            <div class="preview-document" id="mockDocument">
+                <div class="mock-doc-header">KİRA SÖZLEŞMESİ ÖZETİ</div>
+                <div class="mock-doc-row"><div class="mock-doc-label">Kiraya Veren:</div><div class="mock-doc-value" id="doc_ownerName"></div></div>
+                <div class="mock-doc-row"><div class="mock-doc-label">Kiracı:</div><div class="mock-doc-value" id="doc_tenantName"></div></div>
+                <div class="mock-doc-row"><div class="mock-doc-label">Aylık Kira:</div><div class="mock-doc-value" id="doc_rent"></div></div>
+                <div class="mock-doc-row"><div class="mock-doc-label">Mülk Adresi:</div><div class="mock-doc-value" id="doc_address"></div></div>
+            </div>
+
+            <!-- Kilitleme Katmanı -->
+            <div class="blur-overlay" id="blurOverlay">
+                <div class="payment-box">
+                    <h3>Evrak Paketi Hazır</h3>
+                    <p style="font-size: 14px; color: #555;">Kira Sözleşmesi + Tahliye Taahhütnamesi</p>
+                    <div class="pi-price" id="piPrice"></div>
+                    <div class="tl-price" id="piRate"></div>
+                    <button type="button" id="payBtn" class="btn">Pi Cüzdanı İle Öde &amp; Kilidi Aç</button>
+                    <div id="payLoader" class="loader"></div>
+                    <div id="payStatus" class="pay-status"></div>
+                    <div id="payError" class="pay-error"></div>
+                </div>
+            </div>
+
+            <div id="successMessage" style="display: none; color: #28a745; font-weight: bold; font-size: 16px; margin-top: 20px; text-align: center;">
+                ✓ Ödeme Alındı. Evraklar çıktıya hazır!
+                <div id="txReceipt" style="font-size: 11px; color: #666; font-weight: normal; margin-top: 4px;"></div>
+            </div>
+        </div>
+
+        <div class="document-actions" id="documentActions">
+            <button type="button" class="btn btn-success" onclick="printDoc('contract')">Sözleşmeyi İndir / Yazdır</button>
+            <button type="button" class="btn btn-success" onclick="printDoc('eviction')">Taahhütnameyi İndir / Yazdır</button>
+        </div>
+        <p class="legal-note">Bu araç hazır şablon oluşturur, hukuki danışmanlık değildir. İmzadan önce içeriği kontrol ediniz.</p>
+    </div>
+
+    <!-- GİZLİ RESMİ ÇIKTI ŞABLONLARI -->
+    <div id="printArea">
+
+        <!-- SÖZLEŞME ŞABLONU (2 SAYFA) -->
+        <div id="pageContract">
+
+            <!-- SAYFA 1: TABLO -->
+            <div class="print-page">
+                <div class="print-title">KİRA SÖZLEŞMESİ</div>
+                <table class="print-table">
+                    <tr><td class="td-label">Dairesi / Mahallesi / Sokağı ve Numarası</td><td id="p_address"></td></tr>
+                    <tr><td class="td-label">Kiralanan Şeyin Cinsi</td><td id="p_type"></td></tr>
+                    <tr><td class="td-label">Kiraya Verenin Adı Soyadı / Unvanı</td><td id="p_ownerName"></td></tr>
+                    <tr><td class="td-label">Kiraya Verenin T.C. Kimlik No.su</td><td id="p_ownerTC"></td></tr>
+                    <tr><td class="td-label">Kiraya Verenin İkametgah Adresi</td><td id="p_ownerAddress"></td></tr>
+                    <tr><td class="td-label">Kiracının Adı Soyadı / Unvanı</td><td id="p_tenantName"></td></tr>
+                    <tr><td class="td-label">Kiracının T.C. Kimlik No.su</td><td id="p_tenantTC"></td></tr>
+                    <tr><td class="td-label">Kiracının İkametgah Adresi</td><td id="p_tenantAddress"></td></tr>
+                    <tr><td class="td-label">Kiracının İşyeri Adresi</td><td id="p_tenantWork"></td></tr>
+                    <tr><td class="td-label">Bir Aylık Kira Karşılığı</td><td id="p_rentMonthly"></td></tr>
+                    <tr><td class="td-label">Bir Yıllık Kira Karşılığı</td><td id="p_rentYearly"></td></tr>
+                    <tr><td class="td-label">Kiranın Ne Şekilde Ödeneceği</td><td><span id="p_iban"></span> nolu hesaba havale / EFT.</td></tr>
+                    <tr><td class="td-label">Kira Müddeti</td><td id="p_contractDuration"></td></tr>
+                    <tr><td class="td-label">Kiranın Başlangıç Tarihi</td><td id="p_startDate"></td></tr>
+                    <tr><td class="td-label">Kiralanan Şeyin Ne İçin Kullanılacağı</td><td id="p_usage"></td></tr>
+                    <tr><td class="td-label">Kiralanan Şeyin Şimdiki Durumu</td><td id="p_condition"></td></tr>
+                    <tr><td class="td-label">Kiralanan Şey İle Beraber Teslim Olunan Demirbaş Eşyanın Beyanı</td><td id="p_fixtures"></td></tr>
+                </table>
+                <div style="font-size: 9pt; text-align: justify; margin-top: 20px;">
+                    <i>Gelir Vergisi Kanununa göre: Tüccar, Serbest Meslek Erbabı ve Çiftçiler, Ticari, Mesleki ve Zirai işleri ile ilgili olarak yaptıkları kira ödemelerinden Kanunca belirtilen oranlarda stopaj tevkifatı yaparak vergi dairesine yatıracaklardır.</i>
+                </div>
+            </div>
+
+            <!-- SAYFA 2: HUSUSİ ŞARTLAR (20 MADDE) -->
+            <div class="print-page">
+                <div class="hususi-sartlar-title">HUSUSİ ŞARTLAR</div>
+                <ol class="hususi-sartlar-list">
+                    <li>Kiracı kat mülkiyeti kanununa uymayı aynen kabul ve taahhüt eder.</li>
+                    <li>Kiracı kiralananı kısmen veya tamamen başkasına devir ve ciro edemez.</li>
+                    <li>Kiracı kiralanan gayrimenkulde mal sahibinin haberi ve izni olmadan tadilat yapamaz.</li>
+                    <li>Kiracı kira bedelini en geç ait olduğu ayın ilk <b id="p_rentPayDay"></b> gününde ve her ay peşin olarak ödemeyi taahhüt eder.</li>
+                    <li>Kiracı kontrat bitiminde kira bedelini <b id="p_rentIncrease"></b> oranında artırmayı şimdiden kabul ve taahhüt eder.</li>
+                    <li>Elektrik, Su, Doğalgaz, Kalorifer, Apartmana ait giderler ile Çevre Temizlik Vergisi kiracıya aittir.</li>
+                    <li>Kiracı apartman yönetiminin alacağı kararlara aynen uyacaktır.</li>
+                    <li>Kiracı kiralananı boşaltmak istediği takdirde en az bir ay evvelinden mal sahibine ulaşacak şekilde bildirmeyi taahhüt eder.</li>
+                    <li>Kiracı peşinat olarak <b id="p_advanceAmount"></b> mal sahibine vermiştir.</li>
+                    <li>Kiracı depozito olarak <b id="p_depositAmount"></b> mal sahibine vermiştir.</li>
+                    <li>Kiracı mal sahibine vermiş olduğu peşinat ve depozitodan faiz veya herhangi bir fazlalık talep edemez.</li>
+                    <li>Kiracı mal sahibine vermiş olduğu peşinat ve depoziti yapacağı tamirata mahsup edemez.</li>
+                    <li>Kiracı kiralanan gayrimenkulü tahliye ederken vermiş olduğu zarar ve ziyana ait meblağ ile ödenmemiş bulunan Elektrik, Su, Doğalgaz, Telefon borçları mal sahibi tarafından depozitodan mahsup edilir. Eğer verilen depozito yeterli olmaz ise kalan miktarı kiracı kontrat başlangıç tarihi itibariyle kabul ve ödemeyi taahhüt eder.</li>
+                    <li>Kontrat tarihine kadar olan tüm gider ve borçlar mal sahibine aittir.</li>
+                    <li>Kontrat tarihinden sonra tahakkuk eden tüm gider ve borçlar kiracıya aittir.</li>
+                    <li>Kiralanan gayrimenkule tahakkuk edecek stopaj vergisi kiracıya aittir.</li>
+                    <li>Aynı dönem içerisinde kira bedelinin iki ay arka arkaya ödenmemesi halinde, ödenmeyen aydan itibaren kontrat süresi sonuna kadar olan kira bedelleri muacceliyet kesbeder ve bu hal kiracı tarafından gayrimenkulün tahliyesi sebebi olarak peşinen kabul edilir.</li>
+                    <li>Kefilin kefaleti müşterek ve müteselsil olup, kefil kontratın ilk yapıldığındaki kira dönemi ve belirlenen süre için kefaletin mevcudiyetinin devamını beyan ve imzası ile kabul ve taahhüt eder.</li>
+                    <li>İş bu kontrat <b id="p_contractDuration2"></b> süreli olup, kontratın sona ermesinden bir ay evvel taraflar yazılı olarak ihtarda bulunmadıkları sürece kontrat yenilenmiş kabul edilir.</li>
+                    <li>Taraflarca kira sözleşmesinde yazılı adresler kanuni ikametgah adresi olarak kabul edilir. Adreslerdeki herhangi bir değişiklik taraflara yazılı olarak bildirilmediği takdirde kontratta yazılı olan adrese yapılan tebligat muteber sayılacaktır.</li>
+                </ol>
+                <div style="margin-top: 15px; font-size: 10pt; text-align: justify;">
+                    İş bu kontrat 20 maddeden ibaret olup, <b id="p_copies"></b> nüsha düzenlenip muhatapların her birine verilmiştir. İhtilaf halinde <b id="p_court"></b> mahkemeleri ve icra daireleri yetkilidir. Aşağıdaki imzaları bulunan Mal Sahibi - Kiracı - Kiracı Kefili yukarıdaki bütün maddeleri herhangi bir tazyike maruz kalmadan okuyup imza suretiyle kabul etmiştir.
+                </div>
+                <div class="signature-area">
+                    <div class="signature-box"><b>KEFİL</b><br><br><span id="p_signGuarantor">&nbsp;</span><br><br>İmza</div>
+                    <div class="signature-box"><b>KİRACI</b><br><br><span id="p_signTenant"></span><br><br>İmza</div>
+                    <div class="signature-box"><b>KİRAYA VEREN</b><br><br><span id="p_signOwner"></span><br><br>İmza</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAAHHÜTNAME ŞABLONU (1 SAYFA) -->
+        <div id="pageEviction" class="print-page">
+            <div class="print-title">TAHLİYE TAAHHÜTNAMESİ</div>
+            <div style="margin-top: 40px; margin-bottom: 40px;">
+                <p><b>Kiracı (Taahhüt Eden) :</b> <span id="t_tenantName"></span></p>
+                <p><b>T.C. Kimlik No :</b> <span id="t_tenantTC"></span></p>
+                <p><b>Kiraya Veren (Mal Sahibi) :</b> <span id="t_ownerName"></span></p>
+                <p><b>T.C. Kimlik No :</b> <span id="t_ownerTC"></span></p>
+                <p><b>Mecurun Adresi :</b> <span id="t_address"></span></p>
+                <p><b>Taahhüt Tarihi :</b> <span id="t_commitDate"></span></p>
+                <p><b>Tahliye Tarihi :</b> <span id="t_evictDate"></span></p>
+            </div>
+            <p style="text-align: justify; text-indent: 40px;">
+                Halen kiracı olarak kullanmakta olduğum yukarıda adresi yazılı taşınmazı hiçbir ihtar ve ihbara gerek kalmadan kayıtsız ve şartsız olarak, 6098 sayılı Türk Borçlar Kanunu'nun 350, 351 ve 352. maddeleri gereğince, yukarıda belirtilen tahliye tarihinde boş ve sağlam olarak tahliye edeceğimi, yukarıda adı geçen mal sahibinin icrai takibata geçerek yapacağı tüm masrafları ve tahliyeyi geciktirmemden dolayı uğrayacağı zararı ihtara gerek kalmadan nakden ve peşin ödeyeceğimi beyan, kabul ve taahhüt ederim.
+            </p>
+            <div class="signature-area" style="justify-content: flex-end; padding-right: 50px;">
+                <div class="signature-box" style="width: auto;"><b>Kiracı (Taahhüt Eden)</b><br><br><span id="t_signTenant"></span><br><br>İmza</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---- Ayarlar ----
+        const PI_PRICE = 0.15;
+        const PI_RATE_TL = 200;
+        const SANDBOX_MODE = true;            // Testnet / Hackathon için true (Mainnet'te false yapılır)
+        const ALLOW_DEMO_OUTSIDE_PI = true;   // Normal Chrome/Edge'de ofis testi için simülasyona izin verir
+
+        const $ = id => document.getElementById(id);
+        const val = id => $(id).value.trim();
+        const setText = (id, text) => { $(id).textContent = text; };
+        const fmtTL = n => n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        setText('piPrice', PI_PRICE + (SANDBOX_MODE ? ' Test Pi' : ' Pi'));
+        setText('piRate', 'Referans Değer: ₺' + fmtTL(PI_RATE_TL));
+
+        // ---- Pi SDK Başlatma ----
+        let piUser = null;
+        const isPiBrowser = /PiBrowser/i.test(navigator.userAgent);
+
+        if (typeof window.Pi !== 'undefined') {
+            try {
+                window.Pi.init({ version: '2.0', sandbox: SANDBOX_MODE });
+                setText('piStatusBadge', isPiBrowser ? 'Pi Testnet Hazır' : 'Masaüstü Test Modu');
+            } catch (e) {
+                setText('piStatusBadge', 'Masaüstü Test Modu');
+            }
+        } else {
+            setText('piStatusBadge', 'Çevrimdışı Test Modu');
+        }
+
+        // Yarım kalmış bir Pi ödemesi varsa otomatik tamamla (Pi SDK zorunlu kuralı)
+        async function onIncompletePaymentFound(payment) {
+            if (payment && payment.transaction && payment.transaction.txid) {
+                try {
+                    await fetch('/api/complete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            paymentId: payment.identifier,
+                            txid: payment.transaction.txid
+                        })
+                    });
+                } catch (err) {
+                    console.warn('Yarım ödeme tamamlama uyarısı:', err);
+                }
+            }
+        }
+
+        async function ensurePiAuth() {
+            if (piUser) return piUser;
+            const auth = await window.Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
+            piUser = auth.user;
+            if (piUser && piUser.username) {
+                setText('piStatusBadge', '@' + piUser.username);
+            }
+            return piUser;
+        }
+
+        // ---- Yardımcılar ----
+        function parseTL(s) {
+            const n = parseFloat(String(s).replace(/[^\d,]/g, '').replace(',', '.'));
+            return isNaN(n) ? 0 : n;
+        }
+        function formatTL(n) {
+            return n.toLocaleString('tr-TR', { maximumFractionDigits: 2 }) + ' TL';
+        }
+        function formatDate(iso) {
+            if (!iso) return '';
+            const d = new Date(iso + 'T00:00:00');
+            return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' });
+        }
+        function validTC(t) {
+            if (!/^[1-9]\d{10}$/.test(t)) return false;
+            const d = t.split('').map(Number);
+            const odd = d[0] + d[2] + d[4] + d[6] + d[8];
+            const even = d[1] + d[3] + d[5] + d[7];
+            if ((((odd * 7 - even) % 10) + 10) % 10 !== d[9]) return false;
+            return d.slice(0, 10).reduce((a, b) => a + b, 0) % 10 === d[10];
+        }
+
+        $('rentMonthly').addEventListener('input', function () {
+            const m = parseTL(this.value);
+            if (m > 0) $('rentYearly').value = formatTL(m * 12);
+        });
+
+        document.querySelectorAll('input, textarea').forEach(el =>
+            el.addEventListener('input', () => el.classList.remove('invalid')));
+
+        // ---- Doğrulama ----
+        function validate() {
+            const errors = [];
+            document.querySelectorAll('#contractForm [required]').forEach(el => {
+                if (!el.value.trim()) { el.classList.add('invalid'); errors.push('Boş alan: ' + (el.previousElementSibling ? el.previousElementSibling.textContent : el.id)); }
+            });
+            [['ownerTC', 'Kiraya veren T.C. No'], ['tenantTC', 'Kiracı T.C. No']].forEach(([id, name]) => {
+                if (val(id) && !validTC(val(id))) { $(id).classList.add('invalid'); errors.push(name + ' geçersiz görünüyor.'); }
+            });
+            if (val('guarantorTC') && !validTC(val('guarantorTC'))) { $('guarantorTC').classList.add('invalid'); errors.push('Kefil T.C. No geçersiz görünüyor.'); }
+            if (val('ownerIBAN') && !/TR\s?\d{2}/i.test(val('ownerIBAN'))) { $('ownerIBAN').classList.add('invalid'); errors.push('IBAN "TR" ile başlamalıdır.'); }
+
+            if (errors.length) { alert('Lütfen düzeltin:\n\n• ' + errors.join('\n• ')); return false; }
+
+            const warns = [];
+            const rent = parseTL(val('rentMonthly')), dep = parseTL(val('depositAmount'));
+            if (rent > 0 && dep > rent * 3) warns.push('Depozito 3 aylık kiradan fazla. (TBK m.342: depozito en çok 3 aylık kira bedelidir.)');
+            const s = val('startDate'), c = val('commitDate'), e = val('evictDate');
+            if (c < s) warns.push('Taahhütname tarihi, kira başlangıcından ÖNCE. Kira başlamadan imzalanan tahliye taahhütleri geçersiz sayılabilir.');
+            if (e <= c) warns.push('Tahliye tarihi, taahhüt tarihinden sonra olmalı.');
+            if (warns.length) return confirm('Uyarılar:\n\n• ' + warns.join('\n• ') + '\n\nYine de devam edilsin mi?');
+            return true;
+        }
+
+        // ---- ÜRET ----
+        $('generateBtn').addEventListener('click', function () {
+            if (!validate()) return;
+
+            $('initialText').style.display = 'none';
+            $('loader').style.display = 'block';
+            $('mockDocument').style.display = 'none';
+            $('documentActions').style.display = 'none';
+            $('successMessage').style.display = 'none';
+            $('blurOverlay').style.display = 'none';
+            $('payError').style.display = 'none';
+            setText('payStatus', '');
+
+            const dash = v => v || '-';
+            const oName = val('ownerName'), tName = val('tenantName'), address = val('propertyAddress');
+            const rMonth = val('rentMonthly'), duration = val('contractDuration');
+            const gName = val('guarantorName');
+
+            setText('doc_ownerName', oName);
+            setText('doc_tenantName', tName);
+            setText('doc_rent', rMonth);
+            setText('doc_address', address);
+
+            const map = {
+                p_ownerName: oName, p_ownerTC: val('ownerTC'), p_ownerAddress: val('ownerAddress'),
+                p_tenantName: tName, p_tenantTC: val('tenantTC'), p_tenantAddress: val('tenantAddress'),
+                p_tenantWork: dash(val('tenantWork')),
+                p_address: address, p_type: val('propertyType'),
+                p_condition: dash(val('propertyCondition')), p_usage: dash(val('propertyUsage')),
+                p_rentMonthly: rMonth, p_rentYearly: val('rentYearly'),
+                p_iban: val('ownerIBAN'),
+                p_startDate: formatDate(val('startDate')),
+                p_contractDuration: duration, p_contractDuration2: duration,
+                p_rentPayDay: val('rentPayDay').replace(/\.$/, ''),
+                p_rentIncrease: val('rentIncrease'),
+                p_advanceAmount: val('advanceAmount'), p_depositAmount: val('depositAmount'),
+                p_fixtures: dash(val('fixtures')),
+                p_copies: val('copies'), p_court: val('court'),
+                p_signOwner: oName, p_signTenant: tName, p_signGuarantor: gName || '\u00A0',
+                t_ownerName: oName, t_ownerTC: val('ownerTC'),
+                t_tenantName: tName, t_tenantTC: val('tenantTC'),
+                t_address: address,
+                t_commitDate: formatDate(val('commitDate')),
+                t_evictDate: formatDate(val('evictDate')),
+                t_signTenant: tName
+            };
+            Object.keys(map).forEach(id => setText(id, map[id]));
+
+            setTimeout(function () {
+                $('loader').style.display = 'none';
+                $('mockDocument').style.display = 'block';
+                $('blurOverlay').style.display = 'flex';
+                $('mockDocument').style.filter = 'blur(4px)';
+                $('payBtn').style.display = 'block';
+                $('payLoader').style.display = 'none';
+            }, 600);
+        });
+
+        function unlockDocuments(receiptText) {
+            $('blurOverlay').style.display = 'none';
+            $('mockDocument').style.filter = 'none';
+            $('successMessage').style.display = 'block';
+            setText('txReceipt', receiptText || '');
+            $('documentActions').style.display = 'flex';
+        }
+
+        function resetPayUI(errorMsg) {
+            $('payLoader').style.display = 'none';
+            $('payBtn').style.display = 'block';
+            setText('payStatus', '');
+            if (errorMsg) {
+                setText('payError', errorMsg);
+                $('payError').style.display = 'block';
+            }
+        }
+
+        // ---- GERÇEK Pi ÖDEMESİ (Pi Browser'da) + DEMO FALLBACK (Masaüstünde) ----
+        $('payBtn').addEventListener('click', async function () {
+            $('payError').style.display = 'none';
+            this.style.display = 'none';
+            $('payLoader').style.display = 'block';
+
+            // 1. Pi Browser dışındaysa (normal Chrome/Edge)
+            if (!isPiBrowser || typeof window.Pi === 'undefined') {
+                if (!ALLOW_DEMO_OUTSIDE_PI) {
+                    resetPayUI('Gerçek Pi ödemesi için uygulamayı Pi Browser üzerinden açmalısınız.');
+                    return;
+                }
+                setText('payStatus', 'Masaüstü Test Modu: Simülasyon onaylanıyor...');
+                setTimeout(() => unlockDocuments('Test Modu (Pi Browser dışı önizleme)'), 1000);
+                return;
+            }
+
+            // 2. Pi Browser içindeyse: Gerçek Pi SDK ödeme akışı
+            try {
+                setText('payStatus', 'Pi Cüzdanı doğrulanıyor...');
+                await ensurePiAuth();
+
+                setText('payStatus', 'Pi Cüzdan onayı bekleniyor...');
+                window.Pi.createPayment({
+                    amount: PI_PRICE,
+                    memo: 'PiAkit Kira Sözleşmesi ve Tahliye Taahhütnamesi',
+                    metadata: {
+                        service: 'piakit_rental_pack',
+                        city: val('court') || 'TR'
+                    }
+                }, {
+                    onReadyForServerApproval: async function (paymentId) {
+                        setText('payStatus', 'Sunucu ödemeyi onaylıyor...');
+                        const res = await fetch('/api/approve', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ paymentId })
+                        });
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.error || 'Sunucu onayı başarısız.');
+                        }
+                    },
+                    onReadyForServerCompletion: async function (paymentId, txid) {
+                        setText('payStatus', 'Blokzincir işlemi kesinleştiriliyor...');
+                        const res = await fetch('/api/complete', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ paymentId, txid })
+                        });
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.error || 'Ödeme tamamlanamadı.');
+                        }
+                        unlockDocuments('Pi İşlem Kodu (TxID): ' + txid.slice(0, 14) + '...');
+                    },
+                    onCancel: function () {
+                        resetPayUI('Ödeme kullanıcı tarafından iptal edildi.');
+                    },
+                    onError: function (error) {
+                        resetPayUI('Ödeme hatası: ' + (error && error.message ? error.message : 'Bilinmeyen hata'));
+                    }
+                });
+            } catch (err) {
+                resetPayUI('Bağlantı hatası: ' + (err && err.message ? err.message : 'Pi cüzdanına bağlanılamadı.'));
+            }
+        });
+
+        // ---- ÇIKTI (PDF / YAZDIR) ----
+        function printDoc(type) {
+            $('pageContract').style.display = type === 'contract' ? 'block' : 'none';
+            $('pageEviction').style.display = type === 'contract' ? 'none' : 'block';
+            window.print();
+        }
+    </script>
+</body>
+</html>
