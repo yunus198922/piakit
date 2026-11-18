@@ -314,7 +314,7 @@
 
         // ---- Pi SDK Başlatma ----
         let piUser = null;
-        const isPiBrowser = /PiBrowser/i.test(navigator.userAgent);
+        const isPiBrowser = window.location.protocol !== 'file:';
 
         if (typeof window.Pi !== 'undefined') {
             try {
