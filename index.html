@@ -833,8 +833,18 @@
     note.id = 'piakit-en-note';
     note.textContent = 'English UI active. Generated A4 contracts remain in official Turkish legal format (Turkish Code of Obligations compliant).';
 
-    document.body.prepend(note);
-    document.body.prepend(bar);
+    const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            bar.style.marginBottom = '10px';
+            note.style.marginBottom = '12px';
+            sidebar.prepend(note);
+            sidebar.prepend(bar);
+            const footer = document.querySelector('footer');
+            if (footer) sidebar.append(footer);
+        } else {
+            document.body.prepend(note);
+            document.body.prepend(bar);
+        }
 
     bar.addEventListener('click', (e) => {
       const btn = e.target.closest('.piakit-lang-btn');
