@@ -736,7 +736,12 @@
     [/Banka\s*-\s*TR00/i, 'Bank - TR00 0000 0000 0000 0000 0000 00'],
    [/PI_API_KEY/i, 'Server PI_API_KEY is not configured yet.'],
     [/sözleşme verileri derlenecektir/i, 'Your print-ready A4 lease pack will appear here.'],
-    [/Bu araç hazır şablon/i, 'This tool generates standard templates and does not constitute legal advice. Please review all terms before signing.']
+   [/Bu araç hazır şablon/i, 'This tool generates standard templates and does not constitute legal advice. Please review all terms before signing.'],
+    [/Evrak Paketi Hazır/i, 'Document Pack Ready'],
+    [/Kira Sözleşmesi \+ Tahliye Taahhütnamesi/i, 'Lease Agreement + Eviction Commitment'],
+    [/Referans Değer:.*200/i, 'Reference Value: ₺200.00'],
+    [/Referans Değer/i, 'Reference Value: '],
+    [/Pi Cüzdanı doğrulanıyor/i, 'Verifying Pi Wallet...']
   ];
 
   const origText = new WeakMap();
@@ -872,3 +877,4 @@
 </footer>
     </body>
 </html>
+
