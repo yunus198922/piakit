@@ -305,8 +305,8 @@
         // ---- Ayarlar ----
         const PI_PRICE = 0.15;
         const PI_RATE_TL = 200;
-        const SANDBOX_MODE = true;            // Testnet / Hackathon için true (Mainnet'te false yapılır)
-        const ALLOW_DEMO_OUTSIDE_PI = true;   // Normal Chrome/Edge'de ofis testi için simülasyona izin verir
+        const SANDBOX_MODE = false;            // Testnet / Hackathon için true (Mainnet'te false yapılır)
+        const ALLOW_DEMO_OUTSIDE_PI = false;   // Normal Chrome/Edge'de ofis testi için simülasyona izin verir
 
         const $ = id => document.getElementById(id);
         const val = id => $(id).value.trim();
@@ -323,7 +323,7 @@
         if (typeof window.Pi !== 'undefined') {
             try {
                 window.Pi.init({ version: '2.0', sandbox: SANDBOX_MODE });
-                setText('piStatusBadge', isPiBrowser ? 'Pi Testnet Hazır' : 'Masaüstü Test Modu');
+                setText('piStatusBadge', isPiBrowser ? 'Pi Mainnet Hazır' : 'Masaüstü Test Modu');
             } catch (e) {
                 setText('piStatusBadge', 'Masaüstü Test Modu');
             }
@@ -514,7 +514,7 @@
                 setText('payStatus', 'Pi Cüzdan onayı bekleniyor...');
                 window.Pi.createPayment({
                     amount: PI_PRICE,
-                    memo: 'PiAkit Kira Sözleşmesi ve Tahliye Taahhütnamesi',
+                    memo: 'RentPack Legal - Kira Sözleşmesi ve Tahliye Taahhütnamesi',
                     metadata: {
                         service: 'piakit_rental_pack',
                         city: val('court') || 'TR'
