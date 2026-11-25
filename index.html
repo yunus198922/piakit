@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RentPack Legal — Lease Document Generator</title>
-<link rel="icon" type="image/jpeg" href="/logo.jpg" />
+    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
     <!-- Resmi Pi Network SDK -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
@@ -53,6 +53,186 @@
         .document-actions button { flex: 1; }
         .legal-note { font-size: 11px; color: #888; margin-top: 15px; text-align: center; max-width: 800px; }
 
+        /* TR / EN DİL ANAHTARI */
+        #piakit-lang-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            max-width: 1200px;
+            margin: 0 auto 10px;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .piakit-lang-pill {
+            display: inline-flex;
+            background: #f3edf9;
+            border: 1px solid #d8c6ee;
+            border-radius: 999px;
+            padding: 3px;
+            gap: 2px;
+        }
+        .piakit-lang-btn {
+            border: none;
+            background: transparent;
+            color: #5b2c83;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .piakit-lang-btn.active {
+            background: #6c30a0;
+            color: #ffffff;
+        }
+        #piakit-en-note {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto 12px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #4a2574;
+            background: #f8f4fc;
+            border-left: 3px solid #6c30a0;
+            border-radius: 4px;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* PI BROWSER UYUMLU TAM EKRAN A4 BELGE PENCERESİ */
+        #rpDocModal {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #e5e7eb;
+            display: none;
+            flex-direction: column;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+        #rpDocModal.open { display: flex; }
+        .rp-modal-head {
+            background: #6c30a0;
+            color: #fff;
+            padding: 10px 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        .rp-modal-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .rp-modal-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .rp-close-btn {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            width: 34px;
+            height: 34px;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .rp-modal-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .rp-act-btn {
+            flex: 1;
+            min-width: 90px;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            background: #fff;
+            color: #4a2574;
+        }
+        .rp-act-btn.primary {
+            background: #28a745;
+            color: #fff;
+        }
+        #rpDocContent {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 14px 10px 32px;
+            font-family: 'Times New Roman', Times, serif;
+            color: #000;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        #rpDocContent .print-page {
+            background: #fff;
+            max-width: 794px;
+            margin: 0 auto 16px;
+            padding: 22px 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+            border-radius: 4px;
+        }
+        #rpDocContent .print-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 14px;
+            text-decoration: underline;
+        }
+        #rpDocContent .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+            table-layout: fixed;
+        }
+        #rpDocContent .print-table td {
+            border: 1px solid #000;
+            padding: 6px 7px;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        #rpDocContent .td-label {
+            font-weight: bold;
+            width: 42%;
+            background: #fafafa;
+        }
+        #rpDocContent .hususi-sartlar-title {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+        #rpDocContent .hususi-sartlar-list {
+            margin: 0;
+            padding-left: 18px;
+            text-align: justify;
+            font-size: 12.5px;
+        }
+        #rpDocContent .hususi-sartlar-list li {
+            margin-bottom: 5px;
+        }
+        #rpDocContent .signature-area {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 24px;
+        }
+        #rpDocContent .signature-box {
+            text-align: center;
+            flex: 1;
+            font-size: 12px;
+        }
+
         /* MOBİL / DAR EKRAN (Pi Browser dahil) */
         @media screen and (max-width: 900px) {
             body { flex-direction: column; height: auto; }
@@ -68,8 +248,8 @@
         }
         @media print {
             html, body { display: block !important; height: auto !important; background: #fff !important; margin: 0; padding: 0; }
-            .sidebar, .main-content { display: none !important; }
-            #printArea { display: block; font-family: 'Times New Roman', Times, serif; color: #000; font-size: 10pt; line-height: 1.4; }
+            .sidebar, .main-content, #piakit-lang-bar, #piakit-en-note, #rpDocModal, footer { display: none !important; }
+            #printArea { display: block !important; font-family: 'Times New Roman', Times, serif; color: #000; font-size: 10pt; line-height: 1.4; }
 
             @page { size: A4; margin: 1.5cm 2cm; }
 
@@ -199,19 +379,19 @@
             </div>
 
             <div id="successMessage" style="display: none; color: #28a745; font-weight: bold; font-size: 16px; margin-top: 20px; text-align: center;">
-                ✓ Ödeme Alındı. Evraklar çıktıya hazır!
+                <span id="successTitle">✓ Ödeme Alındı. Evraklar çıktıya hazır!</span>
                 <div id="txReceipt" style="font-size: 11px; color: #666; font-weight: normal; margin-top: 4px;"></div>
             </div>
         </div>
 
         <div class="document-actions" id="documentActions">
-            <button type="button" class="btn btn-success" onclick="printDoc('contract')">Sözleşmeyi İndir / Yazdır</button>
-            <button type="button" class="btn btn-success" onclick="printDoc('eviction')">Taahhütnameyi İndir / Yazdır</button>
+            <button type="button" class="btn btn-success" onclick="printDoc('contract')">Sözleşmeyi Görüntüle / İndir</button>
+            <button type="button" class="btn btn-success" onclick="printDoc('eviction')">Taahhütnameyi Görüntüle / İndir</button>
         </div>
         <p class="legal-note">Bu araç hazır şablon oluşturur, hukuki danışmanlık değildir. İmzadan önce içeriği kontrol ediniz.</p>
     </div>
 
-    <!-- GİZLİ RESMİ ÇIKTI ŞABLONLARI -->
+    <!-- GİZLİ RESMİ ÇIKTI ŞABLONLARI (HER ZAMAN RESMİ TÜRKÇE FORMAT) -->
     <div id="printArea">
 
         <!-- SÖZLEŞME ŞABLONU (2 SAYFA) -->
@@ -301,12 +481,34 @@
         </div>
     </div>
 
+    <!-- PI BROWSER UYUMLU TAM EKRAN A4 BELGE GÖRÜNTÜLEYİCİ -->
+    <div id="rpDocModal" aria-hidden="true">
+        <div class="rp-modal-head">
+            <div class="rp-modal-top">
+                <div class="rp-modal-title" id="rpModalTitle">Kira Sözleşmesi (Resmi A4)</div>
+                <button type="button" class="rp-close-btn" id="rpCloseBtn" aria-label="Close">✕</button>
+            </div>
+            <div class="rp-modal-actions">
+                <button type="button" class="rp-act-btn primary" id="rpWordBtn">Word (.doc) İndir</button>
+                <button type="button" class="rp-act-btn" id="rpCopyBtn">Metni Kopyala</button>
+                <button type="button" class="rp-act-btn" id="rpPrintBtn">Yazdır / PDF</button>
+            </div>
+        </div>
+        <div id="rpDocContent"></div>
+    </div>
+
+    <footer style="text-align:center; padding:18px 12px 28px; font-size:13px; color:#6b7280;">
+        <a href="/privacy.html" style="color:#7c3aed; text-decoration:none; font-weight:600;">Privacy Policy / Gizlilik Politikası</a>
+        &nbsp;·&nbsp;
+        <a href="/terms.html" style="color:#7c3aed; text-decoration:none; font-weight:600;">Terms of Service / Kullanım Koşulları</a>
+    </footer>
+
     <script>
-        // ---- Ayarlar ----
+        // ---- Ayarlar (Production / Mainnet) ----
         const PI_PRICE = 0.15;
         const PI_RATE_TL = 200;
-        const SANDBOX_MODE = false;            // Testnet / Hackathon için true (Mainnet'te false yapılır)
-        const ALLOW_DEMO_OUTSIDE_PI = false;   // Normal Chrome/Edge'de ofis testi için simülasyona izin verir
+        const SANDBOX_MODE = false;           // Production (Mainnet) modu
+        const ALLOW_DEMO_OUTSIDE_PI = false;  // Mainnet'te yalnızca gerçek Pi ödemesi
 
         const $ = id => document.getElementById(id);
         const val = id => $(id).value.trim();
@@ -323,7 +525,7 @@
         if (typeof window.Pi !== 'undefined') {
             try {
                 window.Pi.init({ version: '2.0', sandbox: SANDBOX_MODE });
-                setText('piStatusBadge', isPiBrowser ? 'Pi Mainnet Hazır' : 'Masaüstü Test Modu');
+                setText('piStatusBadge', isPiBrowser ? (SANDBOX_MODE ? 'Pi Testnet Hazır' : 'Pi Mainnet Hazır') : 'Masaüstü Test Modu');
             } catch (e) {
                 setText('piStatusBadge', 'Masaüstü Test Modu');
             }
@@ -489,13 +691,12 @@
             }
         }
 
-        // ---- GERÇEK Pi ÖDEMESİ (Pi Browser'da) + DEMO FALLBACK (Masaüstünde) ----
+        // ---- GERÇEK Pi ÖDEMESİ ----
         $('payBtn').addEventListener('click', async function () {
             $('payError').style.display = 'none';
             this.style.display = 'none';
             $('payLoader').style.display = 'block';
 
-            // 1. Pi Browser dışındaysa (normal Chrome/Edge)
             if (!isPiBrowser || typeof window.Pi === 'undefined') {
                 if (!ALLOW_DEMO_OUTSIDE_PI) {
                     resetPayUI('Gerçek Pi ödemesi için uygulamayı Pi Browser üzerinden açmalısınız.');
@@ -506,7 +707,6 @@
                 return;
             }
 
-            // 2. Pi Browser içindeyse: Gerçek Pi SDK ödeme akışı
             try {
                 setText('payStatus', 'Pi Cüzdanı doğrulanıyor...');
                 await ensurePiAuth();
@@ -543,7 +743,9 @@
                             const err = await res.json().catch(() => ({}));
                             throw new Error(err.error || 'Ödeme tamamlanamadı.');
                         }
-                        unlockDocuments('Pi İşlem Kodu (TxID): ' + txid.slice(0, 14) + '...');
+                        const isEn = document.documentElement.lang === 'en';
+                        const prefix = isEn ? 'Pi Transaction ID (TxID): ' : 'Pi İşlem Kodu (TxID): ';
+                        unlockDocuments(prefix + txid.slice(0, 14) + '...');
                     },
                     onCancel: function () {
                         resetPayUI('Ödeme kullanıcı tarafından iptal edildi.');
@@ -557,617 +759,319 @@
             }
         });
 
-        // ---- ÇIKTI (PDF / YAZDIR) ----
+        // ---- PI BROWSER UYUMLU BELGE GÖRÜNTÜLEME, WORD İNDİRME VE YAZDIRMA ----
+        let currentDocType = 'contract';
+        let currentDocHtml = '';
+
+        function updateModalLabels() {
+            const en = document.documentElement.lang === 'en';
+            $('rpModalTitle').textContent = currentDocType === 'contract'
+                ? (en ? 'Lease Agreement (Official A4)' : 'Kira Sözleşmesi (Resmi A4)')
+                : (en ? 'Eviction Commitment (Official A4)' : 'Tahliye Taahhütnamesi (Resmi A4)');
+            $('rpWordBtn').textContent = en ? 'Download Word (.doc)' : 'Word (.doc) İndir';
+            $('rpCopyBtn').textContent = en ? 'Copy Text' : 'Metni Kopyala';
+            $('rpPrintBtn').textContent = en ? 'Print / PDF' : 'Yazdır / PDF';
+        }
+
         function printDoc(type) {
-            $('pageContract').style.display = type === 'contract' ? 'block' : 'none';
-            $('pageEviction').style.display = type === 'contract' ? 'none' : 'block';
+            currentDocType = type === 'eviction' ? 'eviction' : 'contract';
+            $('pageContract').style.display = currentDocType === 'contract' ? 'block' : 'none';
+            $('pageEviction').style.display = currentDocType === 'eviction' ? 'block' : 'none';
+
+            currentDocHtml = currentDocType === 'contract'
+                ? $('pageContract').innerHTML
+                : '<div class="print-page">' + $('pageEviction').innerHTML + '</div>';
+
+            $('rpDocContent').innerHTML = currentDocHtml;
+            $('rpDocContent').scrollTop = 0;
+            updateModalLabels();
+            $('rpDocModal').classList.add('open');
+            $('rpDocModal').setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        $('rpCloseBtn').addEventListener('click', function () {
+            $('rpDocModal').classList.remove('open');
+            $('rpDocModal').setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        });
+
+        $('rpWordBtn').addEventListener('click', function () {
+            const filename = currentDocType === 'contract' ? 'Kira-Sozlesmesi.doc' : 'Tahliye-Taahhutnamesi.doc';
+            const wordDoc =
+                '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+                '<head><meta charset="utf-8"><title>' + filename + '</title><style>' +
+                'body{font-family:"Times New Roman",Times,serif;font-size:10.5pt;color:#000;line-height:1.4;}' +
+                '.print-title,.hususi-sartlar-title{text-align:center;font-weight:bold;text-decoration:underline;margin-bottom:12pt;}' +
+                '.print-table{width:100%;border-collapse:collapse;margin-bottom:14pt;}' +
+                '.print-table td{border:1px solid #000;padding:4pt 6pt;vertical-align:top;}' +
+                '.td-label{font-weight:bold;width:38%;}' +
+                '.hususi-sartlar-list{padding-left:18pt;text-align:justify;font-size:9.5pt;}' +
+                '.hususi-sartlar-list li{margin-bottom:4pt;}' +
+                '.print-page{page-break-after:always;}' +
+                '.print-page:last-child{page-break-after:auto;}' +
+                '.signature-area{margin-top:24pt;width:100%;}' +
+                '.signature-box{display:inline-block;width:31%;text-align:center;vertical-align:top;}' +
+                '</style></head><body>' + currentDocHtml + '</body></html>';
+            const blob = new Blob(['\ufeff', wordDoc], { type: 'application/msword;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+        });
+
+        $('rpCopyBtn').addEventListener('click', function () {
+            const btn = this;
+            const txt = $('rpDocContent').innerText || '';
+            const done = () => {
+                btn.textContent = document.documentElement.lang === 'en' ? '✓ Copied' : '✓ Kopyalandı';
+                setTimeout(updateModalLabels, 1800);
+            };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(txt).then(done).catch(() => {
+                    const ta = document.createElement('textarea');
+                    ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0';
+                    document.body.appendChild(ta); ta.select();
+                    try { document.execCommand('copy'); } catch (e) {}
+                    document.body.removeChild(ta); done();
+                });
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0';
+                document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta); done();
+            }
+        });
+
+        $('rpPrintBtn').addEventListener('click', function () {
             window.print();
-        }
+        });
     </script>
-    <!-- PiAkit TR / EN Arayüz Dil Anahtarı -->
-<style>
-  #piakit-lang-bar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 8px;
-    max-width: 1200px;
-    margin: 8px auto 4px;
-    padding: 0 12px;
-    font-family: system-ui, -apple-system, sans-serif;
-  }
-  .piakit-lang-pill {
-    display: inline-flex;
-    background: #f3edf9;
-    border: 1px solid #d8c6ee;
-    border-radius: 999px;
-    padding: 3px;
-    gap: 2px;
-  }
-  .piakit-lang-btn {
-    border: none;
-    background: transparent;
-    color: #5b2c83;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .piakit-lang-btn.active {
-    background: #6c30a0;
-    color: #ffffff;
-  }
-  #piakit-en-note {
-    display: none;
-    max-width: 1200px;
-    margin: 0 auto 8px;
-    padding: 6px 12px;
-    font-size: 12px;
-    color: #4a2574;
-    background: #f8f4fc;
-    border-left: 3px solid #6c30a0;
-    border-radius: 4px;
-    font-family: system-ui, -apple-system, sans-serif;
-  }
-  @media print {
-    #piakit-lang-bar, #piakit-en-note { display: none !important; }
-  }
-</style>
 
-<script>
-(() => {
-  const STORAGE_KEY = 'piakit_ui_lang';
-  const EXACT = {
-      'İşyeri Adresi': 'Work Address',
-    '(opsiyonel)': '(optional)',
-    'İşyeri Adresi (opsiyonel)': 'Work Address (optional)',
-    '3. Kefil Bilgileri': '3. Guarantor Information',
-    '3. Kefil Bilgileri (opsiyonel)': '3. Guarantor Information (optional)',
-    '4. Mülk (Mecur) ve Şartlar': '4. Property & Lease Terms',
-    'Mülk Adresi (Dairesi / Mah. / Sok. / No)': 'Property Address (Apt / District / St / No)',
-    'Mahalle, sokak, bina no, daire no, ilçe/il': 'Neighborhood, street, building no, apt no, city',
-    'Kiralanan Şeyin Cinsi': 'Property Type',
-    'Kiralanan Şeyin Şimdiki Durumu': 'Current Condition of Property',
-    'Ne İçin Kullanılacağı': 'Intended Use',
-    'otomatik (x12)': 'auto (x12)',
-    'Peşinat Tutarı': 'Advance Payment (TRY)',
-    'Kira Artış Oranı / Esası': 'Annual Rent Increase Rate / Basis',
-    'Kira Ödeme Günü (ayın ilk kaçıncı günü)': 'Monthly Payment Day (day of month)',
-    'Demirbaş Eşya Beyanı': 'Fixtures & Inventory List',
-    'Örn: 1 adet kombi, su sayacı endeksi: ...': 'e.g., 1 boiler, water meter reading: ...',
-    'Örn: 1 adet kombi, su sayacı endeksi: …': 'e.g., 1 boiler, water meter reading: ...',
-    '5. Kritik Tarihler ve Diğer': '5. Key Dates & Other Details',
-    'Sözleşme Başlangıç Tarihi': 'Lease Start Date',
-    'Taahhütname İmzalanma Tarihi': 'Commitment Signing Date',
-    'Evden Tahliye Edilecek Tarih': 'Scheduled Eviction Date',
-    'Nüsha Sayısı': 'Number of Copies',
-    'Yetkili Mahkeme (Şehir)': 'Authorized Court (City)',
-    'Masaüstü Test Modu': 'Desktop Test Mode',
-    'Pi Testnet Hazır': 'Pi Testnet Ready',
-    'Pi Mainnet Hazır': 'Pi Mainnet Ready',
-    'Pi SDK Bağlanıyor...': 'Connecting Pi SDK...',
-    'Sözleşme verileriniz cihazınızdan çıkmaz. Yalnızca ödeme onayı Pi ağı üzerinden doğrulanır.':
-      'Your contract data never leaves your device. Only payment approval is verified via the Pi Network.',
-    '1. Kiraya Veren Bilgileri': '1. Landlord Information',
-    '2. Kiracı Bilgileri': '2. Tenant Information',
-    '3. Kiralanan Taşınmaz Bilgileri': '3. Property Information',
-    '3. Taşınmaz Bilgileri': '3. Property Information',
-    '3. Kiralanan Bilgileri': '3. Property Information',
-    '3. Gayrimenkul Bilgileri': '3. Property Information',
-    '3. Mülk Bilgileri': '3. Property Information',
-    '4. Kira ve Ödeme Bilgileri': '4. Rent & Payment Details',
-    '4. Sözleşme ve Ödeme Bilgileri': '4. Contract & Payment Details',
-    '4. Kira Şartları': '4. Lease Terms',
-    '4. Sözleşme Bilgileri': '4. Lease Details',
-    '4. Mali Bilgiler': '4. Financial Details',
-    '5. Tahliye Taahhütnamesi': '5. Eviction Commitment',
-    '5. Tahliye Taahhütnamesi Bilgileri': '5. Eviction Commitment Details',
-    '5. Kefil Bilgileri': '5. Guarantor Information',
-    '5. Demirbaş ve Özel Şartlar': '5. Fixtures & Special Terms',
-    '6. Tahliye Taahhütnamesi': '6. Eviction Commitment',
-    'Adı Soyadı / Unvanı': 'Full Name / Company Name',
-    'Adı Soyadı': 'Full Name',
-    'Ad Soyad': 'Full Name',
-    'T.C. Kimlik No': 'Turkish ID No (TCKN)',
-    'T.C. Kimlik Numarası': 'Turkish ID No (TCKN)',
-    '11 haneli': '11 digits',
-    'İkametgah Adresi': 'Residential Address',
-    'Mahalle, ilçe, il': 'Neighborhood, district, city',
-    'Banka Adı ve IBAN': 'Bank Name & IBAN',
-    'Telefon': 'Phone Number',
-    'Telefon No': 'Phone Number',
-    'Telefon Numarası': 'Phone Number',
-    'Kiralananın Adresi': 'Property Address',
-    'Taşınmaz Adresi': 'Property Address',
-    'Açık Adres': 'Full Address',
-    'İl / İlçe': 'City / District',
-    'Taşınmaz Türü': 'Property Type',
-    'Kiralananın Cinsi': 'Property Type',
-    'Kullanım Amacı': 'Intended Use',
-    'Kullanım Şekli': 'Intended Use',
-    'Konut': 'Residential',
-    'İşyeri': 'Commercial',
-    'Aylık Kira Bedeli': 'Monthly Rent (TRY)',
-    'Aylık Kira Bedeli (TL)': 'Monthly Rent (TRY)',
-    'Aylık Kira (TL)': 'Monthly Rent (TRY)',
-    'Yıllık Kira Bedeli': 'Annual Rent (TRY)',
-    'Depozito': 'Security Deposit (TRY)',
-    'Depozito Bedeli': 'Security Deposit (TRY)',
-    'Depozito Tutarı': 'Security Deposit (TRY)',
-    'Depozito (TL)': 'Security Deposit (TRY)',
-    'Kira Başlangıç Tarihi': 'Lease Start Date',
-    'Başlangıç Tarihi': 'Start Date',
-    'Kira Süresi': 'Lease Duration',
-    'Sözleşme Süresi': 'Contract Duration',
-    'Ödeme Günü': 'Payment Day',
-    'Kira Ödeme Günü': 'Monthly Payment Day',
-    'Ödeme Şekli': 'Payment Method',
-    'Tahliye Tarihi': 'Eviction Date',
-    'Düzenleme Tarihi': 'Issue Date',
-    'Taahhüt Tarihi': 'Commitment Date',
-    'Taahhütname Düzenleme Tarihi': 'Commitment Issue Date',
-    'Demirbaşlar': 'Fixtures & Inventory',
-    'Teslim Edilen Demirbaşlar': 'Included Fixtures',
-    'Özel Şartlar': 'Special Clauses',
-    'Ek Özel Şartlar': 'Additional Clauses',
-    'Kefil Adı Soyadı': 'Guarantor Full Name',
-    'Kefil T.C. Kimlik No': 'Guarantor Turkish ID No',
-    'Kefil Adresi': 'Guarantor Address',
-    'Evrak Önizlemesi': 'Document Preview',
-    'Sistemi Çalıştır ve Üret': 'Verify & Generate Pack',
-    'Pi Cüzdanı İle Öde & Kilidi Aç': 'Pay with Pi Wallet & Unlock',
-    'Önizleme Kilitli': 'Preview Locked',
-    'Yazdır': 'Print',
-    'Yazdır / PDF Kaydet': 'Print / Save as PDF',
-    'Kira Sözleşmesini Yazdır': 'Print Rental Agreement',
-    'Tahliye Taahhütnamesini Yazdır': 'Print Eviction Commitment',
-    'Sözleşmeyi Yazdır': 'Print Rental Agreement',
-    'Taahhütnameyi Yazdır': 'Print Eviction Commitment',
-    'Örnek Veri Doldur': 'Fill Sample Data',
-    'Test Verisi Doldur': 'Fill Sample Data',
-    'Temizle': 'Clear Form',
-    'Formu Temizle': 'Clear Form'
-  };
+    <!-- RentPack Legal TR / EN Arayüz Dil Anahtarı -->
+    <script>
+    (() => {
+      const STORAGE_KEY = 'piakit_ui_lang';
+      const EXACT = {
+        'İşyeri Adresi': 'Work Address',
+        '(opsiyonel)': '(optional)',
+        'İşyeri Adresi (opsiyonel)': 'Work Address (optional)',
+        '3. Kefil Bilgileri': '3. Guarantor Information',
+        '3. Kefil Bilgileri (opsiyonel)': '3. Guarantor Information (optional)',
+        '4. Mülk (Mecur) ve Şartlar': '4. Property & Lease Terms',
+        'Mülk Adresi (Dairesi / Mah. / Sok. / No)': 'Property Address (Apt / District / St / No)',
+        'Mahalle, sokak, bina no, daire no, ilçe/il': 'Neighborhood, street, building no, apt no, city',
+        'Kiralanan Şeyin Cinsi': 'Property Type',
+        'Kiralanan Şeyin Şimdiki Durumu': 'Current Condition of Property',
+        'Ne İçin Kullanılacağı': 'Intended Use',
+        'otomatik (x12)': 'auto (x12)',
+        'Peşinat Tutarı': 'Advance Payment (TRY)',
+        'Kira Artış Oranı / Esası': 'Annual Rent Increase Rate / Basis',
+        'Kira Ödeme Günü (ayın ilk kaçıncı günü)': 'Monthly Payment Day (day of month)',
+        'Demirbaş Eşya Beyanı': 'Fixtures & Inventory List',
+        'Örn: 1 adet kombi, su sayacı endeksi: ...': 'e.g., 1 boiler, water meter reading: ...',
+        'Örn: 1 adet kombi, su sayacı endeksi: …': 'e.g., 1 boiler, water meter reading: ...',
+        '5. Kritik Tarihler ve Diğer': '5. Key Dates & Other Details',
+        'Sözleşme Başlangıç Tarihi': 'Lease Start Date',
+        'Taahhütname İmzalanma Tarihi': 'Commitment Signing Date',
+        'Evden Tahliye Edilecek Tarih': 'Scheduled Eviction Date',
+        'Nüsha Sayısı': 'Number of Copies',
+        'Yetkili Mahkeme (Şehir)': 'Authorized Court (City)',
+        'Bağlanıyor...': 'Connecting...',
+        'Masaüstü Test Modu': 'Desktop Test Mode',
+        'Çevrimdışı Test Modu': 'Offline Test Mode',
+        'Pi Testnet Hazır': 'Pi Testnet Ready',
+        'Pi Mainnet Hazır': 'Pi Mainnet Ready',
+        'Pi SDK Bağlanıyor...': 'Connecting Pi SDK...',
+        'Sözleşme verileriniz cihazınızdan çıkmaz. Yalnızca ödeme onayı Pi ağı üzerinden doğrulanır.':
+          'Your contract data never leaves your device. Only payment approval is verified via the Pi Network.',
+        '1. Kiraya Veren Bilgileri': '1. Landlord Information',
+        '2. Kiracı Bilgileri': '2. Tenant Information',
+        'Adı Soyadı / Unvanı': 'Full Name / Company Name',
+        'Adı Soyadı': 'Full Name',
+        'Ad Soyad': 'Full Name',
+        'T.C. Kimlik No': 'Turkish ID No (TCKN)',
+        '11 haneli': '11 digits',
+        'İkametgah Adresi': 'Residential Address',
+        'Mahalle, ilçe, il': 'Neighborhood, district, city',
+        'Banka Adı ve IBAN': 'Bank Name & IBAN',
+        'Aylık Kira Bedeli': 'Monthly Rent (TRY)',
+        'Yıllık Kira Bedeli': 'Annual Rent (TRY)',
+        'Depozito Tutarı': 'Security Deposit (TRY)',
+        'Sözleşme Süresi': 'Contract Duration',
+        'Kefil Adı Soyadı': 'Guarantor Full Name',
+        'Kefil T.C. Kimlik No': 'Guarantor Turkish ID No',
+        'Evrak Önizlemesi': 'Document Preview',
+        'Sistemi Çalıştır ve Üret': 'Verify & Generate Pack',
+        'Pi Cüzdanı İle Öde & Kilidi Aç': 'Pay with Pi Wallet & Unlock',
+        'KİRA SÖZLEŞMESİ ÖZETİ': 'LEASE AGREEMENT SUMMARY',
+        'Kiraya Veren:': 'Landlord:',
+        'Kiracı:': 'Tenant:',
+        'Aylık Kira:': 'Monthly Rent:',
+        'Mülk Adresi:': 'Property Address:',
+        '✓ Ödeme Alındı. Evraklar çıktıya hazır!': '✓ Payment Confirmed. Documents ready!',
+        'Sözleşmeyi Görüntüle / İndir': 'View / Download Lease Agreement',
+        'Taahhütnameyi Görüntüle / İndir': 'View / Download Eviction Commitment',
+        'Sözleşmeyi İndir / Yazdır': 'View / Download Lease Agreement',
+        'Taahhütnameyi İndir / Yazdır': 'View / Download Eviction Commitment',
+        'Pi Cüzdanı doğrulanıyor...': 'Verifying Pi Wallet...',
+        'Pi Cüzdan onayı bekleniyor...': 'Waiting for Pi Wallet confirmation...',
+        'Sunucu ödemeyi onaylıyor...': 'Server approving payment...',
+        'Blokzincir işlemi kesinleştiriliyor...': 'Finalizing blockchain transaction...',
+        'Ödeme kullanıcı tarafından iptal edildi.': 'Payment cancelled by user.',
+        'Gerçek Pi ödemesi için uygulamayı Pi Browser üzerinden açmalısınız.': 'Please open this app inside Pi Browser to complete a real Pi payment.'
+      };
 
-  const PARTIAL = [
-    [/Formu doldurup .* butonuna bastığınızda/i, 'Fill in the form and click "Verify & Generate Pack" to preview your verified legal documents.'],
-    [/Banka\s*-\s*TR00/i, 'Bank - TR00 0000 0000 0000 0000 0000 00'],
-   [/PI_API_KEY/i, 'Server PI_API_KEY is not configured yet.'],
-    [/sözleşme verileri derlenecektir/i, 'Your print-ready A4 lease pack will appear here.'],
-   [/Bu araç hazır şablon/i, 'This tool generates standard templates and does not constitute legal advice. Please review all terms before signing.'],
-    [/Evrak Paketi Hazır/i, 'Document Pack Ready'],
-    [/Kira Sözleşmesi \+ Tahliye Taahhütnamesi/i, 'Lease Agreement + Eviction Commitment'],
-    [/Referans Değer:.*200/i, 'Reference Value: ₺200.00'],
-    [/Referans Değer/i, 'Reference Value: '],
-    [/Pi Cüzdanı doğrulanıyor/i, 'Verifying Pi Wallet...']
-  ];
+      const PARTIAL = [
+        [/Formu doldurup .* butonuna bastığınızda/i, 'Fill in the form and click "Verify & Generate Pack" to preview your verified legal documents.'],
+        [/Banka\s*-\s*TR00/i, 'Bank - TR00 0000 0000 0000 0000 0000 00'],
+        [/PI_API_KEY/i, 'Server PI_API_KEY is not configured yet.'],
+        [/sözleşme verileri derlenecektir/i, 'Your print-ready A4 lease pack will appear here.'],
+        [/Bu araç hazır şablon/i, 'This tool generates standard templates and does not constitute legal advice. Please review all terms before signing.'],
+        [/Evrak Paketi Hazır/i, 'Document Pack Ready'],
+        [/Kira Sözleşmesi \+ Tahliye Taahhütnamesi/i, 'Lease Agreement + Eviction Commitment'],
+        [/Referans Değer:.*200/i, 'Reference Value: ₺200.00'],
+        [/Referans Değer/i, 'Reference Value: '],
+        [/Pi Cüzdanı doğrulanıyor/i, 'Verifying Pi Wallet...']
+      ];
 
-  const origText = new WeakMap();
-  const origAttr = new WeakMap();
-  let currentLang = 'tr';
-  let observer = null;
+      const origText = new WeakMap();
+      const origAttr = new WeakMap();
+      let currentLang = 'tr';
+      let observer = null;
 
-  function loadLang() {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      return saved === 'en' ? 'en' : 'tr';
-    } catch { return 'tr'; }
-  }
-
-  function saveLang(lang) {
-    try { localStorage.setItem(STORAGE_KEY, lang); } catch {}
-  }
-
-  function translateString(str) {
-    const trimmed = str.trim();
-    if (!trimmed) return null;
-    if (EXACT[trimmed]) return str.replace(trimmed, EXACT[trimmed]);
-    if (trimmed.length < 220) {
-      for (const [regex, rep] of PARTIAL) {
-        if (regex.test(trimmed)) return rep;
+      function loadLang() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          return saved === 'en' ? 'en' : 'tr';
+        } catch { return 'tr'; }
       }
-    }
-    return null;
-  }
 
-  function applyLang(lang) {
-    currentLang = lang;
-    saveLang(lang);
-    if (observer) observer.disconnect();
+      function saveLang(lang) {
+        try { localStorage.setItem(STORAGE_KEY, lang); } catch {}
+      }
 
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        const p = node.parentElement;
-        if (!p) return NodeFilter.FILTER_REJECT;
-        if (p.closest('#piakit-lang-bar, #piakit-en-note, script, style, textarea')) {
-          return NodeFilter.FILTER_REJECT;
+      function translateString(str) {
+        const trimmed = str.trim();
+        if (!trimmed) return null;
+        if (EXACT[trimmed]) return str.replace(trimmed, EXACT[trimmed]);
+        if (trimmed.length < 220) {
+          for (const [regex, rep] of PARTIAL) {
+            if (regex.test(trimmed)) return rep;
+          }
         }
-        return NodeFilter.FILTER_ACCEPT;
+        return null;
       }
-    });
 
-    const nodes = [];
-    while (walker.nextNode()) nodes.push(walker.currentNode);
+      function applyLang(lang) {
+        currentLang = lang;
+        saveLang(lang);
+        if (observer) observer.disconnect();
 
-    for (const node of nodes) {
-      if (lang === 'en') {
-        const base = origText.has(node) ? origText.get(node) : node.nodeValue;
-        const translated = translateString(base);
-        if (translated) {
-          if (!origText.has(node)) origText.set(node, base);
-          node.nodeValue = translated;
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            const p = node.parentElement;
+            if (!p) return NodeFilter.FILTER_REJECT;
+            if (p.closest('#piakit-lang-bar, #piakit-en-note, #printArea, #rpDocModal, script, style, textarea')) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        });
+
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+
+        for (const node of nodes) {
+          if (lang === 'en') {
+            const base = origText.has(node) ? origText.get(node) : node.nodeValue;
+            const translated = translateString(base);
+            if (translated) {
+              if (!origText.has(node)) origText.set(node, base);
+              node.nodeValue = translated;
+            }
+          } else if (origText.has(node)) {
+            node.nodeValue = origText.get(node);
+          }
         }
-      } else if (origText.has(node)) {
-        node.nodeValue = origText.get(node);
-      }
-    }
 
-    document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach((el) => {
-      if (lang === 'en') {
-        const base = origAttr.has(el) ? origAttr.get(el) : el.placeholder;
-        const translated = translateString(base);
-        if (translated) {
-          if (!origAttr.has(el)) origAttr.set(el, base);
-          el.placeholder = translated;
+        document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach((el) => {
+          if (lang === 'en') {
+            const base = origAttr.has(el) ? origAttr.get(el) : el.placeholder;
+            const translated = translateString(base);
+            if (translated) {
+              if (!origAttr.has(el)) origAttr.set(el, base);
+              el.placeholder = translated;
+            }
+          } else if (origAttr.has(el)) {
+            el.placeholder = origAttr.get(el);
+          }
+        });
+
+        const rx = document.getElementById('txReceipt');
+        if (rx && rx.textContent) {
+          if (lang === 'en') rx.textContent = rx.textContent.replace('Pi İşlem Kodu (TxID):', 'Pi Transaction ID (TxID):');
+          else rx.textContent = rx.textContent.replace('Pi Transaction ID (TxID):', 'Pi İşlem Kodu (TxID):');
         }
-      } else if (origAttr.has(el)) {
-        el.placeholder = origAttr.get(el);
+
+        document.querySelectorAll('.piakit-lang-btn').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.lang === lang);
+        });
+        const note = document.getElementById('piakit-en-note');
+        if (note) note.style.display = lang === 'en' ? 'block' : 'none';
+        document.documentElement.lang = lang;
+
+        if (typeof updateModalLabels === 'function') updateModalLabels();
+
+        if (observer) observer.observe(document.body, { childList: true, subtree: true, characterData: true });
       }
-    });
 
-    document.querySelectorAll('.piakit-lang-btn').forEach((btn) => {
-      btn.classList.toggle('active', btn.dataset.lang === lang);
-    });
-    const note = document.getElementById('piakit-en-note');
-    if (note) note.style.display = lang === 'en' ? 'block' : 'none';
-    document.documentElement.lang = lang;
+      function init() {
+        const bar = document.createElement('div');
+        bar.id = 'piakit-lang-bar';
+        bar.innerHTML = `
+          <div class="piakit-lang-pill" role="group" aria-label="Language">
+            <button type="button" class="piakit-lang-btn" data-lang="tr">TR</button>
+            <button type="button" class="piakit-lang-btn" data-lang="en">EN</button>
+          </div>
+        `;
+        const note = document.createElement('div');
+        note.id = 'piakit-en-note';
+        note.textContent = 'English UI active. Generated A4 contracts remain in official Turkish legal format (Turkish Code of Obligations compliant).';
 
-    if (observer) observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-  }
-
-  function init() {
-    const bar = document.createElement('div');
-    bar.id = 'piakit-lang-bar';
-    bar.innerHTML = `
-      <div class="piakit-lang-pill" role="group" aria-label="Language">
-        <button type="button" class="piakit-lang-btn" data-lang="tr">TR</button>
-        <button type="button" class="piakit-lang-btn" data-lang="en">EN</button>
-      </div>
-    `;
-    const note = document.createElement('div');
-    note.id = 'piakit-en-note';
-    note.textContent = 'English UI active. Generated A4 contracts remain in official Turkish legal format (Turkish Code of Obligations compliant).';
-
-    const sidebar = document.querySelector('.sidebar');
+        const sidebar = document.querySelector('.sidebar');
         if (sidebar) {
-            bar.style.marginBottom = '10px';
-            note.style.marginBottom = '12px';
-            sidebar.prepend(note);
-            sidebar.prepend(bar);
-            const footer = document.querySelector('footer');
-            if (footer) sidebar.append(footer);
+          sidebar.prepend(note);
+          sidebar.prepend(bar);
+          const footer = document.querySelector('footer');
+          if (footer) sidebar.append(footer);
         } else {
-            document.body.prepend(note);
-            document.body.prepend(bar);
+          document.body.prepend(note);
+          document.body.prepend(bar);
         }
 
-    bar.addEventListener('click', (e) => {
-      const btn = e.target.closest('.piakit-lang-btn');
-      if (btn) applyLang(btn.dataset.lang);
-    });
+        bar.addEventListener('click', (e) => {
+          const btn = e.target.closest('.piakit-lang-btn');
+          if (btn) applyLang(btn.dataset.lang);
+        });
 
-    observer = new MutationObserver(() => {
-      if (currentLang === 'en') applyLang('en');
-    });
+        observer = new MutationObserver(() => {
+          if (currentLang === 'en') applyLang('en');
+        });
 
-    applyLang(loadLang());
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-</script>
-    <footer style="text-align:center; padding:18px 12px 28px; font-size:13px; color:#6b7280;">
-  <a href="/privacy.html" style="color:#7c3aed; text-decoration:none; font-weight:600;">Privacy Policy / Gizlilik Politikası</a>
-</footer>
-   <!-- Pi Browser Uyumlu A4 Belge Görüntüleyici, Word İndirme ve EN Senkronizasyonu -->
-<style>
-  #rpDocModal {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    background: #1f1b24;
-    display: none;
-    flex-direction: column;
-    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  }
-  #rpDocModal.open { display: flex; }
-  .rp-modal-head {
-    background: #6c30a0;
-    color: #fff;
-    padding: 10px 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  }
-  .rp-modal-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  .rp-modal-title {
-    font-size: 15px;
-    font-weight: 700;
-    margin: 0;
-  }
-  .rp-close-btn {
-    background: rgba(255,255,255,0.18);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    width: 32px;
-    height: 32px;
-    font-size: 18px;
-    line-height: 1;
-    cursor: pointer;
-  }
-  .rp-modal-actions {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-  .rp-act-btn {
-    flex: 1;
-    min-width: 90px;
-    padding: 8px 10px;
-    border: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    background: #fff;
-    color: #4a2574;
-  }
-  .rp-act-btn.primary {
-    background: #28a745;
-    color: #fff;
-  }
-  #rpDocFrame {
-    flex: 1;
-    width: 100%;
-    border: none;
-    background: #e5e7eb;
-  }
-  @media print {
-    #rpDocModal { display: none !important; }
-  }
-</style>
-
-<script>
-(() => {
-  // 1) Resmi A4 şablonundaki sabit Türkçe başlık/etiketleri koru
-  const origPrintNodes = [];
-  const printArea = document.getElementById('printArea');
-  if (printArea) {
-    const w = document.createTreeWalker(printArea, NodeFilter.SHOW_TEXT);
-    while (w.nextNode()) {
-      const n = w.currentNode;
-      const p = n.parentElement;
-      if (p && !(p.id && /^(p_|t_)/.test(p.id)) && n.nodeValue.trim()) {
-        origPrintNodes.push([n, n.nodeValue]);
+        applyLang(loadLang());
       }
-    }
-  }
-  function restoreTurkishTemplate() {
-    origPrintNodes.forEach(([n, txt]) => { n.nodeValue = txt; });
-  }
 
-  // 2) Modal DOM oluştur
-  const modal = document.createElement('div');
-  modal.id = 'rpDocModal';
-  modal.innerHTML = `
-    <div class="rp-modal-head">
-      <div class="rp-modal-top">
-        <div class="rp-modal-title" id="rpModalTitle">Belge Önizleme</div>
-        <button type="button" class="rp-close-btn" id="rpCloseBtn" aria-label="Close">✕</button>
-      </div>
-      <div class="rp-modal-actions">
-        <button type="button" class="rp-act-btn primary" id="rpWordBtn">Word (.doc)</button>
-        <button type="button" class="rp-act-btn" id="rpCopyBtn">Metni Kopyala</button>
-        <button type="button" class="rp-act-btn" id="rpPrintBtn">Yazdır / PDF</button>
-      </div>
-    </div>
-    <iframe id="rpDocFrame" title="A4 Document Preview"></iframe>
-  `;
-  document.body.appendChild(modal);
-
-  let currentDocType = 'contract';
-  let currentDocBody = '';
-
-  const isEn = () => document.documentElement.lang === 'en';
-
-  function buildPreviewHtml(bodyHtml) {
-    return `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-      <style>
-        *{box-sizing:border-box;}
-        body{margin:0;padding:12px 10px 28px;background:#e5e7eb;font-family:'Times New Roman',Times,serif;color:#000;font-size:13px;line-height:1.45;}
-        .print-page{background:#fff;max-width:794px;margin:0 auto 14px;padding:20px 16px;box-shadow:0 2px 10px rgba(0,0,0,0.12);border-radius:4px;}
-        .print-title{text-align:center;font-weight:bold;font-size:16px;margin-bottom:14px;text-decoration:underline;}
-        .print-table{width:100%;border-collapse:collapse;margin-bottom:14px;table-layout:fixed;}
-        .print-table td{border:1px solid #000;padding:6px 7px;vertical-align:top;word-wrap:break-word;overflow-wrap:break-word;}
-        .td-label{font-weight:bold;width:42%;background:#fafafa;}
-        .hususi-sartlar-title{font-weight:bold;text-align:center;margin-bottom:10px;font-size:14px;text-decoration:underline;}
-        .hususi-sartlar-list{margin:0;padding-left:18px;text-align:justify;font-size:12.5px;}
-        .hususi-sartlar-list li{margin-bottom:5px;}
-        .signature-area{display:flex;justify-content:space-between;gap:8px;margin-top:24px;}
-        .signature-box{text-align:center;flex:1;font-size:12px;}
-      </style></head><body>${bodyHtml}</body></html>`;
-  }
-
-  function downloadWord(filename, bodyHtml) {
-    const wordDoc =
-      '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
-      '<head><meta charset="utf-8"><title>' + filename + '</title><style>' +
-      'body{font-family:"Times New Roman",Times,serif;font-size:10.5pt;color:#000;line-height:1.4;}' +
-      '.print-title,.hususi-sartlar-title{text-align:center;font-weight:bold;text-decoration:underline;margin-bottom:12pt;}' +
-      '.print-table{width:100%;border-collapse:collapse;margin-bottom:14pt;}' +
-      '.print-table td{border:1px solid #000;padding:4pt 6pt;vertical-align:top;}' +
-      '.td-label{font-weight:bold;width:38%;}' +
-      '.hususi-sartlar-list{padding-left:18pt;text-align:justify;font-size:9.5pt;}' +
-      '.hususi-sartlar-list li{margin-bottom:4pt;}' +
-      '.print-page{page-break-after:always;}' +
-      '.print-page:last-child{page-break-after:auto;}' +
-      '.signature-area{margin-top:24pt;width:100%;}' +
-      '.signature-box{display:inline-block;width:31%;text-align:center;vertical-align:top;}' +
-      '</style></head><body>' + bodyHtml + '</body></html>';
-    const blob = new Blob(['\ufeff', wordDoc], { type: 'application/msword;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-  }
-
-  function updateModalLabels() {
-    const en = isEn();
-    const titleEl = document.getElementById('rpModalTitle');
-    if (titleEl) {
-      titleEl.textContent = currentDocType === 'contract'
-        ? (en ? 'Lease Agreement (Official A4)' : 'Kira Sözleşmesi (Resmi A4)')
-        : (en ? 'Eviction Commitment (Official A4)' : 'Tahliye Taahhütnamesi (Resmi A4)');
-    }
-    document.getElementById('rpWordBtn').textContent = en ? 'Download Word (.doc)' : 'Word (.doc) İndir';
-    document.getElementById('rpCopyBtn').textContent = en ? 'Copy Text' : 'Metni Kopyala';
-    document.getElementById('rpPrintBtn').textContent = en ? 'Print / PDF' : 'Yazdır / PDF';
-  }
-
-  // 3) printDoc fonksiyonunu Pi Browser uyumlu sürümle değiştir
-  window.printDoc = function (type) {
-    restoreTurkishTemplate();
-    currentDocType = type === 'eviction' ? 'eviction' : 'contract';
-    const pc = document.getElementById('pageContract');
-    const pe = document.getElementById('pageEviction');
-    if (pc) pc.style.display = currentDocType === 'contract' ? 'block' : 'none';
-    if (pe) pe.style.display = currentDocType === 'eviction' ? 'block' : 'none';
-
-    currentDocBody = currentDocType === 'contract'
-      ? (pc ? pc.innerHTML : '')
-      : '<div class="print-page">' + (pe ? pe.innerHTML : '') + '</div>';
-
-    updateModalLabels();
-    document.getElementById('rpDocFrame').srcdoc = buildPreviewHtml(currentDocBody);
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  };
-
-  document.getElementById('rpCloseBtn').addEventListener('click', () => {
-    modal.classList.remove('open');
-    document.body.style.overflow = '';
-  });
-
-  document.getElementById('rpWordBtn').addEventListener('click', () => {
-    const fname = currentDocType === 'contract' ? 'Kira-Sozlesmesi.doc' : 'Tahliye-Taahhutnamesi.doc';
-    downloadWord(fname, currentDocBody);
-  });
-
-  document.getElementById('rpCopyBtn').addEventListener('click', function () {
-    const btn = this;
-    const frame = document.getElementById('rpDocFrame');
-    let txt = '';
-    try { txt = frame.contentDocument.body.innerText; } catch (e) {}
-    if (!txt) {
-      const tmp = document.createElement('div');
-      tmp.innerHTML = currentDocBody;
-      txt = tmp.textContent || '';
-    }
-    const done = () => {
-      btn.textContent = isEn() ? '✓ Copied' : '✓ Kopyalandı';
-      setTimeout(updateModalLabels, 1800);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(txt).then(done).catch(() => {
-        const ta = document.createElement('textarea');
-        ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0';
-        document.body.appendChild(ta); ta.select();
-        try { document.execCommand('copy'); } catch (e) {}
-        document.body.removeChild(ta); done();
-      });
-    } else {
-      const ta = document.createElement('textarea');
-      ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0';
-      document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); } catch (e) {}
-      document.body.removeChild(ta); done();
-    }
-  });
-
-  document.getElementById('rpPrintBtn').addEventListener('click', () => {
-    restoreTurkishTemplate();
-    window.print();
-  });
-
-  // 4) Ödeme sonrası ve özet alanı için eksik EN/TR çevirilerini senkronize et
-  const labelPairs = [
-    ['Kiraya Veren:', 'Landlord:'],
-    ['Kiracı:', 'Tenant:'],
-    ['Aylık Kira:', 'Monthly Rent:'],
-    ['Mülk Adresi:', 'Property Address:']
-  ];
-  const statusMap = {
-    'Pi Cüzdan onayı bekleniyor...': 'Waiting for Pi Wallet confirmation...',
-    'Sunucu ödemeyi onaylıyor...': 'Server approving payment...',
-    'Blokzincir işlemi kesinleştiriliyor...': 'Finalizing blockchain transaction...'
-  };
-
-  function syncPostPayLang() {
-    const en = isEn();
-    const hdr = document.querySelector('#mockDocument .mock-doc-header');
-    if (hdr) hdr.textContent = en ? 'LEASE AGREEMENT SUMMARY' : 'KİRA SÖZLEŞMESİ ÖZETİ';
-
-    const labels = document.querySelectorAll('#mockDocument .mock-doc-label');
-    labels.forEach((el, i) => {
-      if (labelPairs[i]) el.textContent = en ? labelPairs[i][1] : labelPairs[i][0];
-    });
-
-    const sm = document.getElementById('successMessage');
-    if (sm && sm.firstChild && sm.firstChild.nodeType === 3) {
-      sm.firstChild.nodeValue = en
-        ? '\n                ✓ Payment Confirmed. Documents ready!\n                '
-        : '\n                ✓ Ödeme Alındı. Evraklar çıktıya hazır!\n                ';
-    }
-
-    const btns = document.querySelectorAll('#documentActions button');
-    if (btns[0]) btns[0].textContent = en ? 'View / Download Lease Agreement' : 'Sözleşmeyi Görüntüle / İndir';
-    if (btns[1]) btns[1].textContent = en ? 'View / Download Eviction Commitment' : 'Taahhütnameyi Görüntüle / İndir';
-
-    const rx = document.getElementById('txReceipt');
-    if (rx && rx.textContent) {
-      if (en) rx.textContent = rx.textContent.replace('Pi İşlem Kodu (TxID):', 'Pi Transaction ID (TxID):');
-      else rx.textContent = rx.textContent.replace('Pi Transaction ID (TxID):', 'Pi İşlem Kodu (TxID):');
-    }
-
-    const ps = document.getElementById('payStatus');
-    if (ps && en && statusMap[ps.textContent.trim()]) {
-      ps.textContent = statusMap[ps.textContent.trim()];
-    }
-    updateModalLabels();
-  }
-
-  new MutationObserver(syncPostPayLang).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
-  ['payStatus', 'txReceipt'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) new MutationObserver(syncPostPayLang).observe(el, { childList: true, characterData: true, subtree: true });
-  });
-  document.addEventListener('DOMContentLoaded', () => setTimeout(syncPostPayLang, 60));
-})();
-</script>
-    </body>
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    </script>
+</body>
 </html>
-
