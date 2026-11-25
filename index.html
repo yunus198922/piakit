@@ -875,6 +875,299 @@
     <footer style="text-align:center; padding:18px 12px 28px; font-size:13px; color:#6b7280;">
   <a href="/privacy.html" style="color:#7c3aed; text-decoration:none; font-weight:600;">Privacy Policy / Gizlilik Politikası</a>
 </footer>
+   <!-- Pi Browser Uyumlu A4 Belge Görüntüleyici, Word İndirme ve EN Senkronizasyonu -->
+<style>
+  #rpDocModal {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #1f1b24;
+    display: none;
+    flex-direction: column;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  #rpDocModal.open { display: flex; }
+  .rp-modal-head {
+    background: #6c30a0;
+    color: #fff;
+    padding: 10px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .rp-modal-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .rp-modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+  }
+  .rp-close-btn {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .rp-modal-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .rp-act-btn {
+    flex: 1;
+    min-width: 90px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #fff;
+    color: #4a2574;
+  }
+  .rp-act-btn.primary {
+    background: #28a745;
+    color: #fff;
+  }
+  #rpDocFrame {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: #e5e7eb;
+  }
+  @media print {
+    #rpDocModal { display: none !important; }
+  }
+</style>
+
+<script>
+(() => {
+  // 1) Resmi A4 şablonundaki sabit Türkçe başlık/etiketleri koru
+  const origPrintNodes = [];
+  const printArea = document.getElementById('printArea');
+  if (printArea) {
+    const w = document.createTreeWalker(printArea, NodeFilter.SHOW_TEXT);
+    while (w.nextNode()) {
+      const n = w.currentNode;
+      const p = n.parentElement;
+      if (p && !(p.id && /^(p_|t_)/.test(p.id)) && n.nodeValue.trim()) {
+        origPrintNodes.push([n, n.nodeValue]);
+      }
+    }
+  }
+  function restoreTurkishTemplate() {
+    origPrintNodes.forEach(([n, txt]) => { n.nodeValue = txt; });
+  }
+
+  // 2) Modal DOM oluştur
+  const modal = document.createElement('div');
+  modal.id = 'rpDocModal';
+  modal.innerHTML = `
+    <div class="rp-modal-head">
+      <div class="rp-modal-top">
+        <div class="rp-modal-title" id="rpModalTitle">Belge Önizleme</div>
+        <button type="button" class="rp-close-btn" id="rpCloseBtn" aria-label="Close">✕</button>
+      </div>
+      <div class="rp-modal-actions">
+        <button type="button" class="rp-act-btn primary" id="rpWordBtn">Word (.doc)</button>
+        <button type="button" class="rp-act-btn" id="rpCopyBtn">Metni Kopyala</button>
+        <button type="button" class="rp-act-btn" id="rpPrintBtn">Yazdır / PDF</button>
+      </div>
+    </div>
+    <iframe id="rpDocFrame" title="A4 Document Preview"></iframe>
+  `;
+  document.body.appendChild(modal);
+
+  let currentDocType = 'contract';
+  let currentDocBody = '';
+
+  const isEn = () => document.documentElement.lang === 'en';
+
+  function buildPreviewHtml(bodyHtml) {
+    return `<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+      <style>
+        *{box-sizing:border-box;}
+        body{margin:0;padding:12px 10px 28px;background:#e5e7eb;font-family:'Times New Roman',Times,serif;color:#000;font-size:13px;line-height:1.45;}
+        .print-page{background:#fff;max-width:794px;margin:0 auto 14px;padding:20px 16px;box-shadow:0 2px 10px rgba(0,0,0,0.12);border-radius:4px;}
+        .print-title{text-align:center;font-weight:bold;font-size:16px;margin-bottom:14px;text-decoration:underline;}
+        .print-table{width:100%;border-collapse:collapse;margin-bottom:14px;table-layout:fixed;}
+        .print-table td{border:1px solid #000;padding:6px 7px;vertical-align:top;word-wrap:break-word;overflow-wrap:break-word;}
+        .td-label{font-weight:bold;width:42%;background:#fafafa;}
+        .hususi-sartlar-title{font-weight:bold;text-align:center;margin-bottom:10px;font-size:14px;text-decoration:underline;}
+        .hususi-sartlar-list{margin:0;padding-left:18px;text-align:justify;font-size:12.5px;}
+        .hususi-sartlar-list li{margin-bottom:5px;}
+        .signature-area{display:flex;justify-content:space-between;gap:8px;margin-top:24px;}
+        .signature-box{text-align:center;flex:1;font-size:12px;}
+      </style></head><body>${bodyHtml}</body></html>`;
+  }
+
+  function downloadWord(filename, bodyHtml) {
+    const wordDoc =
+      '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+      '<head><meta charset="utf-8"><title>' + filename + '</title><style>' +
+      'body{font-family:"Times New Roman",Times,serif;font-size:10.5pt;color:#000;line-height:1.4;}' +
+      '.print-title,.hususi-sartlar-title{text-align:center;font-weight:bold;text-decoration:underline;margin-bottom:12pt;}' +
+      '.print-table{width:100%;border-collapse:collapse;margin-bottom:14pt;}' +
+      '.print-table td{border:1px solid #000;padding:4pt 6pt;vertical-align:top;}' +
+      '.td-label{font-weight:bold;width:38%;}' +
+      '.hususi-sartlar-list{padding-left:18pt;text-align:justify;font-size:9.5pt;}' +
+      '.hususi-sartlar-list li{margin-bottom:4pt;}' +
+      '.print-page{page-break-after:always;}' +
+      '.print-page:last-child{page-break-after:auto;}' +
+      '.signature-area{margin-top:24pt;width:100%;}' +
+      '.signature-box{display:inline-block;width:31%;text-align:center;vertical-align:top;}' +
+      '</style></head><body>' + bodyHtml + '</body></html>';
+    const blob = new Blob(['\ufeff', wordDoc], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function updateModalLabels() {
+    const en = isEn();
+    const titleEl = document.getElementById('rpModalTitle');
+    if (titleEl) {
+      titleEl.textContent = currentDocType === 'contract'
+        ? (en ? 'Lease Agreement (Official A4)' : 'Kira Sözleşmesi (Resmi A4)')
+        : (en ? 'Eviction Commitment (Official A4)' : 'Tahliye Taahhütnamesi (Resmi A4)');
+    }
+    document.getElementById('rpWordBtn').textContent = en ? 'Download Word (.doc)' : 'Word (.doc) İndir';
+    document.getElementById('rpCopyBtn').textContent = en ? 'Copy Text' : 'Metni Kopyala';
+    document.getElementById('rpPrintBtn').textContent = en ? 'Print / PDF' : 'Yazdır / PDF';
+  }
+
+  // 3) printDoc fonksiyonunu Pi Browser uyumlu sürümle değiştir
+  window.printDoc = function (type) {
+    restoreTurkishTemplate();
+    currentDocType = type === 'eviction' ? 'eviction' : 'contract';
+    const pc = document.getElementById('pageContract');
+    const pe = document.getElementById('pageEviction');
+    if (pc) pc.style.display = currentDocType === 'contract' ? 'block' : 'none';
+    if (pe) pe.style.display = currentDocType === 'eviction' ? 'block' : 'none';
+
+    currentDocBody = currentDocType === 'contract'
+      ? (pc ? pc.innerHTML : '')
+      : '<div class="print-page">' + (pe ? pe.innerHTML : '') + '</div>';
+
+    updateModalLabels();
+    document.getElementById('rpDocFrame').srcdoc = buildPreviewHtml(currentDocBody);
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  document.getElementById('rpCloseBtn').addEventListener('click', () => {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+
+  document.getElementById('rpWordBtn').addEventListener('click', () => {
+    const fname = currentDocType === 'contract' ? 'Kira-Sozlesmesi.doc' : 'Tahliye-Taahhutnamesi.doc';
+    downloadWord(fname, currentDocBody);
+  });
+
+  document.getElementById('rpCopyBtn').addEventListener('click', function () {
+    const btn = this;
+    const frame = document.getElementById('rpDocFrame');
+    let txt = '';
+    try { txt = frame.contentDocument.body.innerText; } catch (e) {}
+    if (!txt) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = currentDocBody;
+      txt = tmp.textContent || '';
+    }
+    const done = () => {
+      btn.textContent = isEn() ? '✓ Copied' : '✓ Kopyalandı';
+      setTimeout(updateModalLabels, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta); done();
+      });
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta); done();
+    }
+  });
+
+  document.getElementById('rpPrintBtn').addEventListener('click', () => {
+    restoreTurkishTemplate();
+    window.print();
+  });
+
+  // 4) Ödeme sonrası ve özet alanı için eksik EN/TR çevirilerini senkronize et
+  const labelPairs = [
+    ['Kiraya Veren:', 'Landlord:'],
+    ['Kiracı:', 'Tenant:'],
+    ['Aylık Kira:', 'Monthly Rent:'],
+    ['Mülk Adresi:', 'Property Address:']
+  ];
+  const statusMap = {
+    'Pi Cüzdan onayı bekleniyor...': 'Waiting for Pi Wallet confirmation...',
+    'Sunucu ödemeyi onaylıyor...': 'Server approving payment...',
+    'Blokzincir işlemi kesinleştiriliyor...': 'Finalizing blockchain transaction...'
+  };
+
+  function syncPostPayLang() {
+    const en = isEn();
+    const hdr = document.querySelector('#mockDocument .mock-doc-header');
+    if (hdr) hdr.textContent = en ? 'LEASE AGREEMENT SUMMARY' : 'KİRA SÖZLEŞMESİ ÖZETİ';
+
+    const labels = document.querySelectorAll('#mockDocument .mock-doc-label');
+    labels.forEach((el, i) => {
+      if (labelPairs[i]) el.textContent = en ? labelPairs[i][1] : labelPairs[i][0];
+    });
+
+    const sm = document.getElementById('successMessage');
+    if (sm && sm.firstChild && sm.firstChild.nodeType === 3) {
+      sm.firstChild.nodeValue = en
+        ? '\n                ✓ Payment Confirmed. Documents ready!\n                '
+        : '\n                ✓ Ödeme Alındı. Evraklar çıktıya hazır!\n                ';
+    }
+
+    const btns = document.querySelectorAll('#documentActions button');
+    if (btns[0]) btns[0].textContent = en ? 'View / Download Lease Agreement' : 'Sözleşmeyi Görüntüle / İndir';
+    if (btns[1]) btns[1].textContent = en ? 'View / Download Eviction Commitment' : 'Taahhütnameyi Görüntüle / İndir';
+
+    const rx = document.getElementById('txReceipt');
+    if (rx && rx.textContent) {
+      if (en) rx.textContent = rx.textContent.replace('Pi İşlem Kodu (TxID):', 'Pi Transaction ID (TxID):');
+      else rx.textContent = rx.textContent.replace('Pi Transaction ID (TxID):', 'Pi İşlem Kodu (TxID):');
+    }
+
+    const ps = document.getElementById('payStatus');
+    if (ps && en && statusMap[ps.textContent.trim()]) {
+      ps.textContent = statusMap[ps.textContent.trim()];
+    }
+    updateModalLabels();
+  }
+
+  new MutationObserver(syncPostPayLang).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  ['payStatus', 'txReceipt'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) new MutationObserver(syncPostPayLang).observe(el, { childList: true, characterData: true, subtree: true });
+  });
+  document.addEventListener('DOMContentLoaded', () => setTimeout(syncPostPayLang, 60));
+})();
+</script>
     </body>
 </html>
 
